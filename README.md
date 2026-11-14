@@ -38,6 +38,7 @@ Puis ouvrir une pull request sur GitHub (bouton « Compare & pull request ») et
 Avant de recommencer une tâche : `git checkout main && git pull`.
 
 Pipeline : `python download_firms.py` → `python download_2026.py` (clé FIRMS dans `.env`) → `python clean_data.py` → `python aggregate_grid.py` → `python harmonize.py` → `python anomalies.py` (écrit dans `data/processed/`, non versionné).
+**Pour développer la web app sans rien recalculer** : les résultats prêts à l'emploi sont dans `data_public/` (série harmonisée, anomalies du Togo, hotspots nettoyés en `.csv.gz` lisible directement par pandas). `pip install -r requirements.txt` suffit.
 Le format de la série harmonisée est décrit dans `docs/FORMAT.md` ; un échantillon factice est dans `sample/`.
 
 ## Données
@@ -67,7 +68,7 @@ Data: NASA FIRMS (MODIS / VIIRS 375 m).
 - [x] Script de téléchargement (archives + API 2026)
 - [x] Nettoyage, grille mensuelle, calibration MODIS → VIIRS (quantile mapping), série harmonisée
 - [x] Anomalies vs médiane (`anomalies.py`)
-- [ ] Validation détaillée pour le jury
+- [x] Validation pour le jury (`validate.py`, `docs/METHODE.md`)
 - [ ] Web app + calendrier
 - [ ] Pitch et soumission
 
