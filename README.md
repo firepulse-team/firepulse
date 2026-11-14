@@ -67,14 +67,14 @@ Les anomalies viennent de `anomalies.py` (médiane 2001-2025), donc l'app et le 
 
 Une page publique, sans installation, pour le jury : `docs/index.html`.
 
-- Mêmes chiffres que le pipeline et que l'app Streamlit : le site lit `docs/data/firepulse.json`, fabriqué à partir de la série harmonisée.
+- Mêmes chiffres que le pipeline et que l'app Streamlit : le site lit `docs/site/firepulse.json`, fabriqué à partir de la série harmonisée.
 - Calendrier **par semaine** (chaque total mensuel harmonisé est réparti sur ses jours au prorata des hotspots du capteur source, comme `anomalies.month_to_date`).
 - Carte avec zone à dessiner, situation du mois en cours, saison face à l'historique, tendance harmonisée contre brut, preuve de la validation, méthode et limites, export CSV. Français et anglais, thème clair et sombre.
 
 Mettre à jour les données du site après un nouveau passage du pipeline :
 
 ```bash
-python build_site_data.py        # écrit docs/data/firepulse.json
+python build_site_data.py        # écrit docs/site/firepulse.json
 ```
 
 Voir le site en local :

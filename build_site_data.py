@@ -3,7 +3,7 @@
 Entrées (data/processed/ si le pipeline a tourné, sinon data_public/) :
   harmonized_monthly.csv   série harmonisée par case et par mois (docs/FORMAT.md)
   hotspots_clean.csv(.gz)  hotspots individuels nettoyés
-Sortie : docs/data/firepulse.json
+Sortie : docs/site/firepulse.json
 
 Le site a besoin du détail par JOUR pour le calendrier hebdomadaire. On répartit donc chaque valeur
 mensuelle harmonisée d'une case sur ses jours, au prorata des hotspots du capteur source ce jour-là :
@@ -22,7 +22,7 @@ from harmonize import NOAA20_FROM, SWITCH
 
 ROOT = Path(__file__).parent
 RES = 0.1
-OUT = ROOT / "docs" / "data" / "firepulse.json"
+OUT = ROOT / "docs" / "site" / "firepulse.json"
 
 
 def first_existing(*paths: Path) -> Path:

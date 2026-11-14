@@ -287,7 +287,7 @@
   function storyText() { const t = whole && whole.trend; return t ? (t.pct > 0 ? '+' : '−') + num(Math.abs(t.pct), 1) + pc() : T.na; }
 
   applyLang();
-  fetch('data/firepulse.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(j => {
+  fetch('site/firepulse.json').then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(j => {
     D = FP.load(j);
     S.aois = [{ id: 'all', box: D.bbox }].concat(REGIONS.filter(r => r[1] < D.bbox[1] && r[2] > D.bbox[0]).map(r => ({ id: 'r:' + r[0], name: r[0], box: [Math.max(r[1], D.bbox[0]), Math.min(r[2], D.bbox[1]), D.bbox[2], D.bbox[3]] })));
     whole = FP.fireYears(FP.monthly(D, FP.aggregate(D, D.bbox))); S.story = storyText();
