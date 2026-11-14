@@ -241,7 +241,7 @@ with tabs[3]:
     st.subheader(T["map_h"])
     pick = st.selectbox(T["map_m"], [T["all"]] + MO)
     cells = fc.cell_frequency(sub, MO.index(pick) + 1 if pick in MO else None)
-    fmap = folium.Map(tiles="CartoDB positron", control_scale=True)
+    fmap = folium.Map(tiles="OpenStreetMap", control_scale=True)
     fmap.fit_bounds([[box[0], box[2]], [box[1], box[3]]])
     if len(cells):
         vmax = float(cells.per_year.quantile(0.97)) or 1.0
