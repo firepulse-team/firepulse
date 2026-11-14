@@ -37,27 +37,31 @@ git push -u origin prenom/ma-tache                            # première fois ;
 Puis ouvrir une pull request sur GitHub (bouton « Compare & pull request ») et la fusionner dans `main`.
 Avant de recommencer une tâche : `git checkout main && git pull`.
 
-Pipeline : `python download_firms.py` → `python clean_data.py` (écrit `data/processed/`, non versionné).
+Pipeline : `python download_firms.py` → `python download_2026.py` (clé FIRMS dans `.env`) → `python clean_data.py` → `python aggregate_grid.py` → `python harmonize.py` → `python anomalies.py` (écrit dans `data/processed/`, non versionné).
+**Pour développer la web app sans rien recalculer** : les résultats prêts à l'emploi sont dans `data_public/` (série harmonisée, anomalies du Togo, hotspots nettoyés en `.csv.gz` lisible directement par pandas). `pip install -r requirements.txt` suffit.
 Le format de la série harmonisée est décrit dans `docs/FORMAT.md` ; un échantillon factice est dans `sample/`.
 
 ## Web app
 
 ```bash
+git clone https://github.com/firepulse-team/firepulse.git
+cd firepulse
+python3 -m venv .venv && source .venv/bin/activate    # Windows : .venv\Scripts\activate
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run app.py                                  # ouvre http://localhost:8501
 ```
 
-L'app lit `data/processed/harmonized_monthly.csv` (format : `docs/FORMAT.md`). Si ce fichier est absent, elle affiche l'échantillon factice de `sample/` avec un avertissement.
+Rien à télécharger ni à recalculer : l'app lit la série de `data_public/`. Si le pipeline a tourné, elle prend `data/processed/` à la place ; sans aucune série réelle, elle affiche l'échantillon factice de `sample/` avec un avertissement.
 
 - **Zone d'intérêt** : toute l'étendue, une région (bandes de latitude approximatives), un rectangle réglé aux curseurs ou dessiné sur la carte.
-- **Calendrier** : années × mois, en activité ou en anomalies (chaque mois comparé au même mois des autres années).
+- **Calendrier** : années × mois, en activité ou en anomalies.
 - **Saison** : l'année choisie face à la médiane, P25–P75 et P90.
 - **Tendance** : total annuel harmonisé contre comptage brut, pente de Theil–Sen et test de Mann–Kendall.
-- **Périodes critiques** : mois dont la médiane dépasse 50 % du pic, et liste des mois les plus inhabituels.
+- **Périodes critiques** : mois dont la médiane dépasse 50 % du pic, et mois les plus inhabituels.
 - **Export CSV** : série mensuelle de la zone, calendrier type, hotspots individuels.
-- Option « année de feu » : l'année commence après les mois les plus calmes, pour ne pas couper la saison novembre–mars au 1er janvier. Interface en français et en anglais.
+- **Mois en cours** : comparé à la même fenêtre de jours des années passées (`anomalies.month_to_date`).
 
-Les calculs sont dans `firecal.py` (sans Streamlit, donc testables à part).
+Les anomalies viennent de `anomalies.py` (médiane 2001-2025), donc l'app et le pipeline affichent les mêmes chiffres. `firecal.py` ajoute l'année de feu (octobre à septembre pour le Togo, pour ne pas couper la saison au 1er janvier), les niveaux calme / actif / critique et la tendance. Interface en français et en anglais.
 
 ## Données
 
@@ -83,9 +87,11 @@ Data: NASA FIRMS (MODIS / VIIRS 375 m).
 
 ## Avancement
 
-- [x] Script de téléchargement
-- [ ] Script d'harmonisation
-- [x] Web app + calendrier (`app.py`) — à vérifier sur la vraie série
+- [x] Script de téléchargement (archives + API 2026)
+- [x] Nettoyage, grille mensuelle, calibration MODIS → VIIRS (quantile mapping), série harmonisée
+- [x] Anomalies vs médiane (`anomalies.py`)
+- [x] Validation pour le jury (`validate.py`, `docs/METHODE.md`)
+- [x] Web app + calendrier (`app.py`, `firecal.py`)
 - [ ] Pitch et soumission
 
 ## Équipe

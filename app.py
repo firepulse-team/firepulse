@@ -1,8 +1,9 @@
 """FIREPULSE — web app : calendrier de brûlage harmonisé MODIS + VIIRS.
 
 Lancer :  streamlit run app.py
-Lit data/processed/harmonized_monthly.csv (format : docs/FORMAT.md). Si le fichier est absent,
-l'app utilise l'échantillon factice de sample/ et l'affiche clairement.
+Lit la série harmonisée (format : docs/FORMAT.md) dans data/processed/ si le pipeline a tourné,
+sinon dans data_public/ (données prêtes à l'emploi du dépôt), sinon l'échantillon factice de sample/.
+Les anomalies sont calculées par anomalies.py, comme dans le pipeline.
 """
 import folium
 import numpy as np
@@ -22,14 +23,17 @@ MONTHS = {"fr": ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "ao�
 TXT = {
     "fr": {
         "tagline": "Calendrier de brûlage harmonisé MODIS + VIIRS · NASA FIRMS",
-        "sample": "**Échantillon factice.** `data/processed/harmonized_monthly.csv` est absent : l'app affiche `sample/harmonized_monthly_sample.csv`. Ces chiffres ne décrivent pas de vrais feux. Lancez le pipeline (`download_firms.py` → `clean_data.py` → `aggregate_grid.py` → `harmonize.py`) pour voir les données réelles.",
+        "sample": "**Échantillon factice.** Aucune série réelle trouvée dans `data/processed/` ni `data_public/` : l'app affiche `sample/harmonized_monthly_sample.csv`. Ces chiffres ne décrivent pas de vrais feux.",
+        "origin": {"processed": "Série lue dans `data/processed/` (pipeline local).", "public": "Série lue dans `data_public/` (données prêtes à l'emploi du dépôt).", "sample": ""},
+        "partial": "Mois en cours ({p}) : **{v:,.0f}** hotspots équivalent VIIRS, soit **{r:.0f} %** de la médiane de la même fenêtre de jours sur {y} (percentile {q:.0f}).",
+        "partial_no": "Le dernier mois ({m}) est partiel : il est affiché dans le calendrier mais exclu des anomalies, des totaux annuels et de la tendance.", "part_tag": "mois partiel",
         "zone": "Zone d'intérêt", "whole": "Toute l'étendue des données", "custom": "Rectangle personnalisé", "drawn": "Rectangle dessiné sur la carte",
         "approx": "Les régions sont des bandes de latitude approximatives, pas les limites administratives.",
         "south": "Sud", "north": "Nord", "west": "Ouest", "east": "Est",
         "fy": "Année de feu (la saison n'est pas coupée au 1er janvier)", "year": "Année à détailler", "lang": "Langue",
         "empty": "Aucun feu dans cette zone. Agrandissez le rectangle.",
         "k_season": "Mois critiques", "k_season_h": "Mois dont la médiane dépasse 50 % du pic. Part de l'activité annuelle : {s:.0f} %.",
-        "k_last": "Dernier mois ({m})", "k_last_h": "Hotspots équivalent VIIRS, comparés à la médiane du même mois.", "k_vs": "{d:+.0f} % vs médiane",
+        "k_last": "Dernier mois complet ({m})", "k_last_h": "Hotspots équivalent VIIRS, comparés à la médiane du même mois.", "k_vs": "{d:+.0f} % vs médiane",
         "k_year": "Saison {y}", "k_year_h": "Total de l'année choisie, comparé à la médiane des années complètes.",
         "k_trend": "Tendance", "k_trend_v": "{p:+.1f} % / an", "k_trend_h": "Pente de Theil–Sen sur les années complètes ; p = {p:.3f} (Mann–Kendall).", "na": "n/d",
         "t_cal": "Calendrier", "t_season": "Saison", "t_trend": "Tendance", "t_map": "Carte", "t_crit": "Périodes critiques", "t_exp": "Export",
@@ -45,19 +49,22 @@ TXT = {
         "use": "Utiliser le rectangle dessiné comme zone", "leg": "hotspots / an",
         "crit_h": "Calendrier type de la zone", "lvl": ["calme", "actif", "critique"], "c_m": "Mois", "c_med": "Médiane", "c_p90": "P90", "c_max": "Maximum", "c_share": "Part annuelle", "c_lvl": "Niveau",
         "unusual": "Mois les plus inhabituels", "u_cap": "Mois classés « très au-dessus » ou « record » face au même mois des autres années.", "u_n": "Hotspots", "u_pct": "% de la médiane", "u_cat": "Catégorie", "none": "Aucun mois inhabituel dans cette zone.",
-        "exp_series": "Série mensuelle de la zone (CSV)", "exp_cal": "Calendrier type (CSV)", "exp_hot": "Hotspots individuels de la zone (CSV)", "exp_nohot": "`data/processed/hotspots_clean.csv` est absent : lancez `clean_data.py` pour exporter les hotspots individuels.",
+        "exp_series": "Série mensuelle de la zone (CSV)", "exp_cal": "Calendrier type (CSV)", "exp_hot": "Hotspots individuels de la zone (CSV)", "exp_nohot": "Fichier des hotspots individuels introuvable (`data/processed/hotspots_clean.csv` ou `data_public/hotspots_clean.csv.gz`).",
         "foot": "Données : NASA FIRMS (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). La NASA ne cautionne pas ce projet.",
     },
     "en": {
         "tagline": "Harmonized MODIS + VIIRS burning calendar · NASA FIRMS",
-        "sample": "**Dummy sample.** `data/processed/harmonized_monthly.csv` is missing: the app shows `sample/harmonized_monthly_sample.csv`. These numbers do not describe real fires. Run the pipeline (`download_firms.py` → `clean_data.py` → `aggregate_grid.py` → `harmonize.py`) to see real data.",
+        "sample": "**Dummy sample.** No real series found in `data/processed/` or `data_public/`: the app shows `sample/harmonized_monthly_sample.csv`. These numbers do not describe real fires.",
+        "origin": {"processed": "Series read from `data/processed/` (local pipeline).", "public": "Series read from `data_public/` (ready-to-use data in the repository).", "sample": ""},
+        "partial": "Current month ({p}): **{v:,.0f}** VIIRS-equivalent hotspots, **{r:.0f}%** of the median of the same day window over {y} (percentile {q:.0f}).",
+        "partial_no": "The latest month ({m}) is partial: it is shown in the calendar but excluded from anomalies, yearly totals and the trend.", "part_tag": "partial month",
         "zone": "Area of interest", "whole": "Full data extent", "custom": "Custom rectangle", "drawn": "Rectangle drawn on the map",
         "approx": "Regions are approximate latitude bands, not administrative boundaries.",
         "south": "South", "north": "North", "west": "West", "east": "East",
         "fy": "Fire year (the season is not cut on 1 January)", "year": "Year to inspect", "lang": "Language",
         "empty": "No fires in this area. Enlarge the rectangle.",
         "k_season": "Critical months", "k_season_h": "Months whose median exceeds 50% of the peak. Share of yearly activity: {s:.0f}%.",
-        "k_last": "Latest month ({m})", "k_last_h": "VIIRS-equivalent hotspots, compared with the median of the same month.", "k_vs": "{d:+.0f}% vs median",
+        "k_last": "Latest full month ({m})", "k_last_h": "VIIRS-equivalent hotspots, compared with the median of the same month.", "k_vs": "{d:+.0f}% vs median",
         "k_year": "Season {y}", "k_year_h": "Total of the chosen year, compared with the median of complete years.",
         "k_trend": "Trend", "k_trend_v": "{p:+.1f}% / yr", "k_trend_h": "Theil–Sen slope over complete years; p = {p:.3f} (Mann–Kendall).", "na": "n/a",
         "t_cal": "Calendar", "t_season": "Season", "t_trend": "Trend", "t_map": "Map", "t_crit": "Critical periods", "t_exp": "Export",
@@ -73,7 +80,7 @@ TXT = {
         "use": "Use the drawn rectangle as the area", "leg": "hotspots / yr",
         "crit_h": "Typical calendar of the area", "lvl": ["quiet", "active", "critical"], "c_m": "Month", "c_med": "Median", "c_p90": "P90", "c_max": "Maximum", "c_share": "Yearly share", "c_lvl": "Level",
         "unusual": "Most unusual months", "u_cap": "Months ranked “far above” or “record” against the same month of the other years.", "u_n": "Hotspots", "u_pct": "% of median", "u_cat": "Category", "none": "No unusual month in this area.",
-        "exp_series": "Monthly series of the area (CSV)", "exp_cal": "Typical calendar (CSV)", "exp_hot": "Individual hotspots of the area (CSV)", "exp_nohot": "`data/processed/hotspots_clean.csv` is missing: run `clean_data.py` to export individual hotspots.",
+        "exp_series": "Monthly series of the area (CSV)", "exp_cal": "Typical calendar (CSV)", "exp_hot": "Individual hotspots of the area (CSV)", "exp_nohot": "Individual hotspots file not found (`data/processed/hotspots_clean.csv` or `data_public/hotspots_clean.csv.gz`).",
         "foot": "Data: NASA FIRMS (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). NASA does not endorse this project.",
     },
 }
@@ -90,14 +97,29 @@ def get_series():
 
 
 @st.cache_data
-def get_hotspots(south, north, west, east):
-    h = pd.read_csv(fc.HOTSPOTS)
+def all_hotspots():
+    p = fc.hotspots_path()
+    return None if p is None else pd.read_csv(p, parse_dates=["date"])
+
+
+@st.cache_data
+def export_hotspots(south, north, west, east):
+    h = all_hotspots()
     return h[(h.lat >= south) & (h.lat <= north) & (h.lon >= west) & (h.lon <= east)].to_csv(index=False).encode("utf-8")
 
 
-df, is_sample = get_series()
+@st.cache_data
+def current_month(box):
+    return fc.an.month_to_date(all_hotspots(), get_series()[0], bbox=box)
+
+
+df, origin = get_series()
+is_sample = origin == "sample"
+hot = all_hotspots()
+last_day = None if hot is None else hot["date"].max()
+# Le dernier mois est partiel si les hotspots ne vont pas jusqu'à son dernier jour (docs/FORMAT.md)
+last_partial = (not is_sample) and (last_day is None or (last_day.strftime("%Y-%m") == df["month"].max() and not last_day.is_month_end))
 ext = (float(df.lat_cell.min()), float(df.lat_cell.max()) + fc.RES, float(df.lon_cell.min()), float(df.lon_cell.max()) + fc.RES)  # S, N, W, E
-first, last = df["month"].min(), df["month"].max()
 
 # ---------- barre latérale ----------
 with st.sidebar:
@@ -124,17 +146,18 @@ st.title("FIREPULSE")
 st.caption(T["tagline"])
 if is_sample:
     st.warning(T["sample"])
+else:
+    st.caption(T["origin"][origin])
 
 sub = fc.in_bbox(df, *box)
 if sub.empty:
     st.error(T["empty"]); st.stop()
 
 # ---------- calculs ----------
-mo = fc.monthly(sub, first, last)
-start = fc.fire_year_start(mo) if use_fy else 1
-mo = fc.add_fire_year(mo, start)
+mo = fc.monthly(df, box, last_partial)
 clim = fc.climatology(mo)
-mo = fc.anomalies(mo, clim)
+start = fc.fire_year_start(clim) if use_fy else 1
+mo = fc.add_fire_year(mo, start)
 yr = fc.yearly(mo)
 done = yr[yr.complete]
 order = [(start - 1 + i) % 12 + 1 for i in range(12)]  # mois dans l'ordre de l'année de feu
@@ -147,7 +170,7 @@ with st.sidebar:
 
 # ---------- indicateurs ----------
 crit = [m for m in order if clim.set_index("m").level[m] == 2]
-lastrow = mo.iloc[-1]
+lastrow = mo[~mo.partial].iloc[-1]
 tr = fc.trend(done.fy, done.n) if len(done) >= 6 else None
 k1, k2, k3, k4 = st.columns(4)
 k1.metric(T["k_season"], (MO[crit[0] - 1] if len(crit) == 1 else f"{MO[crit[0] - 1]} – {MO[crit[-1] - 1]}") if crit else T["na"], help=T["k_season_h"].format(s=100 * clim[clim.m.isin(crit)].share.sum()))
@@ -157,6 +180,14 @@ if len(done):
     k3.metric(T["k_year"].format(y=sel), f"{tot:,.0f}", T["k_vs"].format(d=100 * tot / med - 100) if med > 0 else None, delta_color="inverse", help=T["k_year_h"])
 k4.metric(T["k_trend"], T["k_trend_v"].format(p=tr["pct"]) if tr else T["na"], help=T["k_trend_h"].format(p=tr["p"]) if tr else None)
 
+if last_partial:
+    pm = mo.iloc[-1]
+    if hot is not None and not is_sample:
+        c = current_month(box)
+        if c["ratio"] is not None:
+            st.info(T["partial"].format(p=c["periode"].replace("->", "→"), v=c["valeur"], r=100 * c["ratio"], y=c["annees_reference"], q=c["percentile"]))
+    st.caption(T["partial_no"].format(m=f"{MO[int(pm.m) - 1]} {int(pm.year)}"))
+
 tabs = st.tabs([T["t_cal"], T["t_season"], T["t_trend"], T["t_map"], T["t_crit"], T["t_exp"]])
 
 # ---------- calendrier ----------
@@ -165,7 +196,8 @@ with tabs[0]:
     c1.subheader(T["cal_h"])
     mode = c2.radio(T["mode"], [T["act"], T["ano"]], horizontal=True)
     piv = lambda col: mo.pivot(index="label", columns="pos", values=col).reindex(labels)
-    z_n, z_cat, z_med, z_src = piv("n"), piv("cat"), piv("median"), piv("source")
+    mo["src_txt"] = np.where(mo.partial, mo.source + " · " + T["part_tag"], mo.source)
+    z_n, z_cat, z_med, z_src = piv("n"), piv("cat"), piv("median"), piv("src_txt")
     custom = np.dstack([z_n.to_numpy(float), z_med.to_numpy(float), z_cat.map(lambda c: T["cats"].get(int(c), "") if pd.notna(c) else "").to_numpy(), z_src.fillna("").to_numpy()])
     if mode == T["act"]:
         vmax = float(np.nanquantile(z_n.to_numpy(float), 0.98)) or 1.0
@@ -208,7 +240,7 @@ with tabs[2]:
 with tabs[3]:
     st.subheader(T["map_h"])
     pick = st.selectbox(T["map_m"], [T["all"]] + MO)
-    cells = fc.cell_frequency(sub, MO.index(pick) + 1 if pick in MO else None, len(mo) / 12)
+    cells = fc.cell_frequency(sub, MO.index(pick) + 1 if pick in MO else None)
     fmap = folium.Map(tiles="CartoDB positron", control_scale=True)
     fmap.fit_bounds([[box[0], box[2]], [box[1], box[3]]])
     if len(cells):
@@ -237,7 +269,7 @@ with tabs[4]:
     tbl = pd.DataFrame({T["c_m"]: [MO[m - 1] for m in c.m], T["c_lvl"]: [T["lvl"][int(v)] for v in c.level], T["c_share"]: (100 * c.share).round(1), T["c_med"]: c["median"].round(0), T["c_p90"]: c.p90.round(0), T["c_max"]: c["max"].round(0)})
     st.dataframe(tbl, hide_index=True, width="stretch", column_config={T["c_share"]: st.column_config.ProgressColumn(T["c_share"], format="%.1f %%", min_value=0, max_value=float(max(1.0, tbl[T["c_share"]].max())))})
     st.subheader(T["unusual"])
-    u = mo[mo.cat >= 2].sort_values(["rank", "pct"], ascending=False).head(15)
+    u = mo[mo.cat >= 2].sort_values(["pct"], ascending=False).head(15)
     if u.empty:
         st.info(T["none"])
     else:
@@ -246,12 +278,12 @@ with tabs[4]:
 
 # ---------- export ----------
 with tabs[5]:
-    series = mo.assign(month=mo.year.astype(str) + "-" + mo.m.astype(str).str.zfill(2), anomaly=[TXT["en"]["cats"][int(k)] for k in mo.cat])[["month", "label", "n", "raw", "source", "median", "pct", "rank", "anomaly"]]
+    series = mo.assign(anomaly=[TXT["en"]["cats"][int(k)] for k in mo.cat])[["month", "label", "n", "raw", "source", "median", "pct", "percentile", "anomaly", "partial"]]
     series = series.rename(columns={"label": "fire_year", "n": "n_harmonized", "raw": "n_raw", "median": "historical_median", "pct": "pct_of_median"}).round(3)
     st.download_button(T["exp_series"], series.to_csv(index=False).encode("utf-8"), "firepulse_monthly_series.csv", "text/csv")
     st.download_button(T["exp_cal"], clim.assign(level=[TXT["en"]["lvl"][int(v)] for v in clim.level]).round(3).to_csv(index=False).encode("utf-8"), "firepulse_calendar.csv", "text/csv")
-    if fc.HOTSPOTS.exists():
-        st.download_button(T["exp_hot"], get_hotspots(*box), "firepulse_hotspots.csv", "text/csv")
+    if hot is not None:
+        st.download_button(T["exp_hot"], export_hotspots(*box), "firepulse_hotspots.csv", "text/csv")
     else:
         st.info(T["exp_nohot"])
 

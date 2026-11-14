@@ -1,9 +1,11 @@
-requests
+# Pipeline de données
 pandas
 numpy
 scikit-learn
 matplotlib
-streamlit>=1.50
-plotly
+
+# Web app (à ajuster par l'équipe)
+streamlit
 folium
 streamlit-folium
+plotly
