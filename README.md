@@ -100,4 +100,4 @@ Data: NASA FIRMS (MODIS / VIIRS 375 m).
 
 ## Mentions
 
-Projet réalisé pour le NASA Space Apps Challenge. La NASA ne cautionne pas ce projet. Les licences des données externes (ex. limites administratives) seront indiquées ici.
+Projet réalisé pour le NASA Space Apps Challenge 2026 avec les données NASA FIRMS. Les résultats sont ceux de l'équipe et n'engagent pas la NASA. Les licences des données externes (ex. limites administratives) seront indiquées ici.

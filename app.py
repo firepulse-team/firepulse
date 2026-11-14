@@ -50,7 +50,7 @@ TXT = {
         "crit_h": "Calendrier type de la zone", "lvl": ["calme", "actif", "critique"], "c_m": "Mois", "c_med": "Médiane", "c_p90": "P90", "c_max": "Maximum", "c_share": "Part annuelle", "c_lvl": "Niveau",
         "unusual": "Mois les plus inhabituels", "u_cap": "Mois classés « très au-dessus » ou « record » face au même mois des autres années.", "u_n": "Hotspots", "u_pct": "% de la médiane", "u_cat": "Catégorie", "none": "Aucun mois inhabituel dans cette zone.",
         "exp_series": "Série mensuelle de la zone (CSV)", "exp_cal": "Calendrier type (CSV)", "exp_hot": "Hotspots individuels de la zone (CSV)", "exp_nohot": "Fichier des hotspots individuels introuvable (`data/processed/hotspots_clean.csv` ou `data_public/hotspots_clean.csv.gz`).",
-        "foot": "Données : NASA FIRMS (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). La NASA ne cautionne pas ce projet.",
+        "foot": "Projet réalisé pour le NASA Space Apps Challenge 2026 avec les données NASA FIRMS (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). Les résultats sont ceux de l'équipe et n'engagent pas la NASA.",
     },
     "en": {
         "tagline": "Harmonized MODIS + VIIRS burning calendar · NASA FIRMS",
@@ -81,7 +81,7 @@ TXT = {
         "crit_h": "Typical calendar of the area", "lvl": ["quiet", "active", "critical"], "c_m": "Month", "c_med": "Median", "c_p90": "P90", "c_max": "Maximum", "c_share": "Yearly share", "c_lvl": "Level",
         "unusual": "Most unusual months", "u_cap": "Months ranked “far above” or “record” against the same month of the other years.", "u_n": "Hotspots", "u_pct": "% of median", "u_cat": "Category", "none": "No unusual month in this area.",
         "exp_series": "Monthly series of the area (CSV)", "exp_cal": "Typical calendar (CSV)", "exp_hot": "Individual hotspots of the area (CSV)", "exp_nohot": "Individual hotspots file not found (`data/processed/hotspots_clean.csv` or `data_public/hotspots_clean.csv.gz`).",
-        "foot": "Data: NASA FIRMS (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). NASA does not endorse this project.",
+        "foot": "Built for the NASA Space Apps Challenge 2026 with NASA FIRMS data (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). Results are the team's own and do not represent NASA.",
     },
 }
 # Bandes de latitude approximatives des régions du Togo (sud, nord)
