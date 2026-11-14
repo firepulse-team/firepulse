@@ -20,6 +20,26 @@ Autres pays :
 python download_firms.py --pays Togo Benin Ghana Burkina_Faso
 ```
 
+## Travailler en équipe (Git)
+
+Une branche par personne ou par tâche, puis fusion dans `main` via pull request. Ne jamais faire `git push --force`.
+
+```bash
+git clone https://github.com/firepulse-team/firepulse.git   # une seule fois
+git checkout main && git pull                                 # récupérer le travail des autres
+git checkout -b prenom/ma-tache                               # ex. achille/webapp
+# ... travailler, puis :
+git add fichier1 fichier2
+git commit -m "Message clair"
+git push -u origin prenom/ma-tache                            # première fois ; ensuite : git push
+```
+
+Puis ouvrir une pull request sur GitHub (bouton « Compare & pull request ») et la fusionner dans `main`.
+Avant de recommencer une tâche : `git checkout main && git pull`.
+
+Pipeline : `python download_firms.py` → `python clean_data.py` (écrit `data/processed/`, non versionné).
+Le format de la série harmonisée est décrit dans `docs/FORMAT.md` ; un échantillon factice est dans `sample/`.
+
 ## Données
 
 Source : [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) — archives CSV par pays et par année.
