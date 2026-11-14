@@ -1,0 +1,7 @@
+﻿data/
+CLAUDE.md
+.claude/
+.env
+*.key
+__pycache__/
+*.pyc
