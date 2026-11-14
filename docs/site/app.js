@@ -44,7 +44,7 @@
       dataTitle: 'Données', dataSub: 'Exports pour la zone choisie. Les valeurs hebdomadaires répartissent chaque total mensuel harmonisé au prorata des points chauds du capteur source.',
       dlWeek: 'Télécharger la série hebdomadaire (CSV)', dlMonth: 'Télécharger la série mensuelle (CSV)', dlAll: 'Toutes les données du projet', tblSum: 'Tableau par année de feu',
       tY: 'Année de feu', tTot: 'Total harmonisé', tRaw: 'Comptage brut', tPct: '% de la médiane', tSrc: 'Capteur',
-      footer: 'Projet réalisé pour le NASA Space Apps Challenge 2026, défi « Harmonization of MODIS and VIIRS Hot Spots », avec les données <a href="https://firms.modaps.eosdis.nasa.gov/">NASA FIRMS</a>. Les résultats sont ceux de l’équipe et n’engagent pas la NASA. Frontières : Natural Earth. Fond de carte : © OpenStreetMap, © CARTO.',
+      footer: 'Projet réalisé pour le NASA Space Apps Challenge 2026, défi « Harmonization of MODIS and VIIRS Hot Spots », avec les données <a href="https://firms.modaps.eosdis.nasa.gov/">NASA FIRMS</a>. Les résultats sont ceux de l’équipe et n’engagent pas la NASA. Frontières : Natural Earth. Fond de carte : © les contributeurs d’OpenStreetMap.',
       months: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
     },
     en: {
@@ -88,7 +88,7 @@
       dataTitle: 'Data', dataSub: 'Exports for the chosen area. Weekly values spread each harmonized monthly total in proportion to the hotspots of the source sensor.',
       dlWeek: 'Download the weekly series (CSV)', dlMonth: 'Download the monthly series (CSV)', dlAll: 'All project data', tblSum: 'Table by fire year',
       tY: 'Fire year', tTot: 'Harmonized total', tRaw: 'Raw count', tPct: '% of median', tSrc: 'Sensor',
-      footer: 'Built for the NASA Space Apps Challenge 2026, challenge “Harmonization of MODIS and VIIRS Hot Spots”, with <a href="https://firms.modaps.eosdis.nasa.gov/">NASA FIRMS</a> data. Results are the team’s own and do not represent NASA. Borders: Natural Earth. Basemap: © OpenStreetMap, © CARTO.',
+      footer: 'Built for the NASA Space Apps Challenge 2026, challenge “Harmonization of MODIS and VIIRS Hot Spots”, with <a href="https://firms.modaps.eosdis.nasa.gov/">NASA FIRMS</a> data. Results are the team’s own and do not represent NASA. Borders: Natural Earth. Basemap: © OpenStreetMap contributors.',
       months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     }
   };
@@ -131,8 +131,9 @@
     });
   }
   function setTiles() {
-    const dark = matchMedia('(prefers-color-scheme: dark)').matches; if (tiles) map.removeLayer(tiles);
-    tiles = L.tileLayer(`https://{s}.basemaps.cartocdn.com/${dark ? 'dark_all' : 'light_all'}/{z}/{x}/{y}{r}.png`, { subdomains: 'abcd', maxZoom: 12, attribution: '© OpenStreetMap, © CARTO · NASA FIRMS' }).addTo(map); tiles.bringToBack();
+    // OpenStreetMap : sans clé d'API. Le style (gris en clair, inversé en sombre) est donné par la classe CSS .basemap.
+    if (tiles) return;
+    tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 12, className: 'basemap', attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · NASA FIRMS' }).addTo(map); tiles.bringToBack();
   }
   function endDraw() { drawing = false; drawStart = null; if (drawRect) { map.removeLayer(drawRect); drawRect = null; } map.dragging.enable(); $('map').classList.remove('drawing'); $('drawBtn').classList.remove('on'); $('drawBtn').textContent = T.draw; }
   const aoiName = a => a.id === 'all' ? T.whole : a.id === 'custom' ? `${T.custom} ${a.box[0]}–${a.box[1]}° N, ${a.box[2]}–${a.box[3]}° E` : a.name + T.approx;
@@ -282,7 +283,7 @@
   function download(name, text) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
   $('dlWeek').onclick = () => download('firepulse_weekly.csv', FP.weeklyCSV(S.agg, S.cal));
   $('dlMonth').onclick = () => download('firepulse_monthly.csv', FP.monthlyCSV(S.mon));
-  try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (map) { setTiles(); renderMap(false); } }); } catch (e) { }
+  try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (map) renderMap(false); }); } catch (e) { }
   let whole = null;
   function storyText() { const t = whole && whole.trend; return t ? (t.pct > 0 ? '+' : '−') + num(Math.abs(t.pct), 1) + pc() : T.na; }
 
