@@ -97,3 +97,5 @@ footer a{color:var(--ink2)}
 #loading{padding:60px 0;text-align:center;color:var(--ink2)}
 .err{border:1px solid var(--crit);border-left-width:5px;border-radius:8px;padding:10px 14px;background:var(--surface)}
 @media (prefers-reduced-motion:no-preference){.pill i.pulse{animation:pl 1.6s ease-in-out infinite}@keyframes pl{50%{opacity:.35}}}
+.basemap{filter:grayscale(.75) contrast(.92) brightness(1.03)}
+@media (prefers-color-scheme:dark){.basemap{filter:invert(1) hue-rotate(180deg) grayscale(.6) brightness(.85) contrast(.9)}}
