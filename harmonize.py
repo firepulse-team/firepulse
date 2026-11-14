@@ -20,6 +20,7 @@ SRC = ROOT / "data" / "processed" / "monthly_grid.csv"
 OUT = ROOT / "data" / "processed" / "harmonized_monthly.csv"
 FIG = ROOT / "docs" / "harmonization_check.png"
 SWITCH = "2012-02"
+NOAA20_FROM = "2026-11"
 
 
 def build() -> pd.DataFrame:
@@ -46,10 +47,18 @@ def build() -> pd.DataFrame:
     ).round(3)
     old["source"] = "MODIS"
 
+    # S-NPP a cessé de livrer le 2026-11-02 : à partir de ce mois, NOAA-20 (corrigé du ratio médian
+    # NOAA-20/S-NPP mesuré sur le chevauchement 2018-05 -> 2025-12) prend le relais.
+    nat = g.groupby("month")[["n_snpp", "n_noaa20"]].sum().loc["2018-05":"2025-12"]
+    nat = nat[nat["n_snpp"] > 200]
+    ratio_n20 = float((nat["n_noaa20"] / nat["n_snpp"]).median())
+    print(f"Ratio NOAA-20/S-NPP (médian) : {ratio_n20:.3f} ; NOAA-20 utilisé dès {NOAA20_FROM}")
+
     new = g[g["month"] >= SWITCH].copy()
-    new = new[new["n_snpp"] > 0]
-    new["n_raw"] = new["n_snpp"]
-    new["n_harmonized"] = new["n_snpp"].astype(float)
+    use_n20 = new["month"] >= NOAA20_FROM
+    new["n_raw"] = np.where(use_n20, new["n_noaa20"], new["n_snpp"])
+    new["n_harmonized"] = np.where(use_n20, new["n_noaa20"] / ratio_n20, new["n_snpp"]).astype(float).round(3)
+    new = new[new["n_raw"] > 0]
     new["source"] = "VIIRS"
 
     cols = ["month", "lat_cell", "lon_cell", "n_raw", "n_harmonized", "source"]
@@ -59,6 +68,7 @@ def build() -> pd.DataFrame:
 def check_plot(h: pd.DataFrame, g: pd.DataFrame) -> pd.DataFrame:
     g = g.assign(year=g["month"].str[:4].astype(int))
     h = h.assign(year=h["month"].str[:4].astype(int))
+    g, h = g[g.year <= 2025], h[h.year <= 2025]  # 2026 incomplet : exclu du graphique annuel
     yearly = pd.DataFrame(
         {
             "MODIS brut": (g["n_aqua"] + g["n_terra"]).groupby(g.year).sum(),

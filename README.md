@@ -37,7 +37,7 @@ git push -u origin prenom/ma-tache                            # première fois ;
 Puis ouvrir une pull request sur GitHub (bouton « Compare & pull request ») et la fusionner dans `main`.
 Avant de recommencer une tâche : `git checkout main && git pull`.
 
-Pipeline : `python download_firms.py` → `python clean_data.py` (écrit `data/processed/`, non versionné).
+Pipeline : `python download_firms.py` → `python download_2026.py` (clé FIRMS dans `.env`) → `python clean_data.py` → `python aggregate_grid.py` → `python harmonize.py` → `python anomalies.py` (écrit dans `data/processed/`, non versionné).
 Le format de la série harmonisée est décrit dans `docs/FORMAT.md` ; un échantillon factice est dans `sample/`.
 
 ## Données
@@ -64,8 +64,10 @@ Data: NASA FIRMS (MODIS / VIIRS 375 m).
 
 ## Avancement
 
-- [x] Script de téléchargement
-- [ ] Script d'harmonisation
+- [x] Script de téléchargement (archives + API 2026)
+- [x] Nettoyage, grille mensuelle, calibration MODIS → VIIRS (quantile mapping), série harmonisée
+- [x] Anomalies vs médiane (`anomalies.py`)
+- [ ] Validation détaillée pour le jury
 - [ ] Web app + calendrier
 - [ ] Pitch et soumission
 
