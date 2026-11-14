@@ -40,6 +40,25 @@ Avant de recommencer une tâche : `git checkout main && git pull`.
 Pipeline : `python download_firms.py` → `python clean_data.py` (écrit `data/processed/`, non versionné).
 Le format de la série harmonisée est décrit dans `docs/FORMAT.md` ; un échantillon factice est dans `sample/`.
 
+## Web app
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+L'app lit `data/processed/harmonized_monthly.csv` (format : `docs/FORMAT.md`). Si ce fichier est absent, elle affiche l'échantillon factice de `sample/` avec un avertissement.
+
+- **Zone d'intérêt** : toute l'étendue, une région (bandes de latitude approximatives), un rectangle réglé aux curseurs ou dessiné sur la carte.
+- **Calendrier** : années × mois, en activité ou en anomalies (chaque mois comparé au même mois des autres années).
+- **Saison** : l'année choisie face à la médiane, P25–P75 et P90.
+- **Tendance** : total annuel harmonisé contre comptage brut, pente de Theil–Sen et test de Mann–Kendall.
+- **Périodes critiques** : mois dont la médiane dépasse 50 % du pic, et liste des mois les plus inhabituels.
+- **Export CSV** : série mensuelle de la zone, calendrier type, hotspots individuels.
+- Option « année de feu » : l'année commence après les mois les plus calmes, pour ne pas couper la saison novembre–mars au 1er janvier. Interface en français et en anglais.
+
+Les calculs sont dans `firecal.py` (sans Streamlit, donc testables à part).
+
 ## Données
 
 Source : [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) — archives CSV par pays et par année.
@@ -66,7 +85,7 @@ Data: NASA FIRMS (MODIS / VIIRS 375 m).
 
 - [x] Script de téléchargement
 - [ ] Script d'harmonisation
-- [ ] Web app + calendrier
+- [x] Web app + calendrier (`app.py`) — à vérifier sur la vraie série
 - [ ] Pitch et soumission
 
 ## Équipe
