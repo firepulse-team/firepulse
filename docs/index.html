@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIREPULSE — Calendrier de brûlage harmonisé MODIS + VIIRS</title>
+<meta name="description" content="FIREPULSE harmonise 25 ans de points chauds MODIS et VIIRS (NASA FIRMS) en un calendrier de brûlage pour le Togo. NASA Space Apps Challenge 2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="site/style.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1>FIRE<span>PULSE</span></h1><p data-i18n="tagline"></p></div>
+    <a class="btn" href="https://github.com/firepulse-team/firepulse" data-i18n="repo"></a>
+    <div class="seg" role="group" aria-label="Langue / Language"><button id="lgfr">FR</button><button id="lgen">EN</button></div>
+  </header>
+
+  <section class="story">
+    <div><div class="k" data-i18n="s1k"></div><div class="v">× 4 – 5</div><p data-i18n="s1t"></p></div>
+    <div><div class="k" data-i18n="s2k"></div><div class="v" data-i18n="s2v"></div><p data-i18n="s2t"></p></div>
+    <div><div class="k" data-i18n="s3k"></div><div class="v" id="storyTrend">…</div><p data-i18n="s3t"></p></div>
+  </section>
+
+  <div id="loading" data-i18n="loading" role="status"></div>
+  <main id="app" hidden>
+    <div class="row">
+      <section class="card">
+        <h2 data-i18n="mapTitle"></h2><p class="sub" data-i18n="mapSub"></p>
+        <div class="ctrl">
+          <label><span data-i18n="aoi"></span><select id="aoiSel"></select></label>
+          <label><span data-i18n="mapMonth"></span><select id="monthSel"></select></label>
+          <label><span>&nbsp;</span><button id="drawBtn" data-i18n="draw"></button></label>
+        </div>
+        <div id="map"></div>
+        <div class="legend"><span id="aoiInfo"></span><span class="ramp" id="mapRamp"></span></div>
+      </section>
+      <div class="side">
+        <section class="card status" id="statusCard"></section>
+        <div class="kpis" id="kpis"></div>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="headrow">
+        <div><h2 data-i18n="calTitle"></h2><p class="sub" data-i18n="calSub"></p></div>
+        <div class="seg" role="group"><button id="modeAct" data-i18n="modeAct"></button><button id="modeAno" data-i18n="modeAno"></button></div>
+      </div>
+      <div class="scroll"><div id="heat"></div></div>
+      <div class="legend" id="heatLegend"></div>
+    </section>
+
+    <div class="row even">
+      <section class="card"><h2 id="seasTitle"></h2><p class="sub" data-i18n="seasSub"></p><div id="seas"></div><div class="legend" id="seasLegend"></div></section>
+      <section class="card"><h2 data-i18n="annTitle"></h2><p class="sub" data-i18n="annSub"></p><div id="ann"></div><div class="legend" id="annLegend"></div></section>
+    </div>
+
+    <div class="row even">
+      <section class="card">
+        <h2 data-i18n="valTitle"></h2><p class="sub" data-i18n="valSub"></p>
+        <div class="scroll"><table id="valTable"></table></div>
+        <ul class="facts" id="valFacts"></ul>
+        <figure><img src="validation_series.png" alt="" id="valImg"><figcaption data-i18n="valCap"></figcaption></figure>
+      </section>
+      <section class="card method">
+        <h2 data-i18n="methTitle"></h2><p class="sub" data-i18n="methSub"></p>
+        <ol id="methList"></ol>
+        <h3 data-i18n="limTitle"></h3><ul class="facts" id="limList"></ul>
+      </section>
+    </div>
+
+    <section class="card">
+      <h2 data-i18n="dataTitle"></h2><p class="sub" data-i18n="dataSub"></p>
+      <div class="ctrl">
+        <button id="dlWeek" data-i18n="dlWeek"></button>
+        <button id="dlMonth" data-i18n="dlMonth"></button>
+        <a class="btn" href="https://github.com/firepulse-team/firepulse/tree/main/data_public" data-i18n="dlAll"></a>
+      </div>
+      <details><summary data-i18n="tblSum"></summary><div class="scroll" id="annTable"></div></details>
+    </section>
+  </main>
+  <footer data-i18n="footer"></footer>
+</div>
+<div id="tip" role="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="site/borders.js"></script>
+<script src="site/core.js"></script>
+<script src="site/app.js"></script>
+</body>
+</html>

@@ -63,6 +63,30 @@ Rien à télécharger ni à recalculer : l'app lit la série de `data_public/`. 
 
 Les anomalies viennent de `anomalies.py` (médiane 2001-2025), donc l'app et le pipeline affichent les mêmes chiffres. `firecal.py` ajoute l'année de feu (octobre à septembre pour le Togo, pour ne pas couper la saison au 1er janvier), les niveaux calme / actif / critique et la tendance. Interface en français et en anglais.
 
+## Site web (GitHub Pages)
+
+Une page publique, sans installation, pour le jury : `docs/index.html`.
+
+- Mêmes chiffres que le pipeline et que l'app Streamlit : le site lit `docs/data/firepulse.json`, fabriqué à partir de la série harmonisée.
+- Calendrier **par semaine** (chaque total mensuel harmonisé est réparti sur ses jours au prorata des hotspots du capteur source, comme `anomalies.month_to_date`).
+- Carte avec zone à dessiner, situation du mois en cours, saison face à l'historique, tendance harmonisée contre brut, preuve de la validation, méthode et limites, export CSV. Français et anglais, thème clair et sombre.
+
+Mettre à jour les données du site après un nouveau passage du pipeline :
+
+```bash
+python build_site_data.py        # écrit docs/data/firepulse.json
+```
+
+Voir le site en local :
+
+```bash
+cd docs && python -m http.server 8000     # puis ouvrir http://localhost:8000
+```
+
+Publier : dans GitHub, **Settings → Pages → Build and deployment → Deploy from a branch**, branche `main`, dossier `/docs`. Le site sera à l'adresse https://firepulse-team.github.io/firepulse/ (dépôt public requis avec un compte gratuit).
+
+Fichiers : `docs/index.html`, `docs/site/` (`core.js` calculs, `app.js` interface, `style.css`, `borders.js` frontières Natural Earth).
+
 ## Données
 
 Source : [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) — archives CSV par pays et par année.
@@ -92,6 +116,7 @@ Data: NASA FIRMS (MODIS / VIIRS 375 m).
 - [x] Anomalies vs médiane (`anomalies.py`)
 - [x] Validation pour le jury (`validate.py`, `docs/METHODE.md`)
 - [x] Web app + calendrier (`app.py`, `firecal.py`)
+- [x] Site web public (`docs/index.html`) — à publier avec GitHub Pages
 - [ ] Pitch et soumission
 
 ## Équipe
