@@ -11,6 +11,8 @@ mensuelle harmonisée d'une case sur ses jours, au prorata des hotspots du capte
 C'est la même règle que anomalies.month_to_date. La somme sur un mois redonne exactement n_harmonized :
 le site affiche donc les mêmes totaux que le pipeline.
 Capteur source : MODIS avant 2012-02, VIIRS S-NPP ensuite, VIIRS NOAA-20 à partir de 2026-11 (harmonize.py).
+
+Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team.
 """
 import json
 from pathlib import Path

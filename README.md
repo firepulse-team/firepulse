@@ -95,6 +95,10 @@ Logo (fond transparent) : `docs/site/logo.svg` et `logo.png` pour les fonds clai
 
 Fichiers : `docs/site/style.css` (styles), `site.js` (interface des trois pages), `core.js` (calculs), `borders.js` (frontières Natural Earth). La carte n'utilise aucun fond de carte externe.
 
+## Usage de l'IA
+
+Le règlement Space Apps demande d'indiquer où l'IA a servi. Le site (`docs/`), l'app Streamlit (`app.py`, `firecal.py`), `build_site_data.py` et le logo ont été réalisés avec l'aide de Claude (Anthropic), puis relus et testés par l'équipe. Ces fichiers portent la mention en en-tête, et le pied de page du site le dit. Les graphiques et les cartes sont tracés par notre code à partir des données NASA FIRMS : aucun n'est une image générée par IA. Le texte de soumission est dans `docs/SUBMISSION.md`.
+
 ## Données
 
 Source : [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) — archives CSV par pays et par année.
