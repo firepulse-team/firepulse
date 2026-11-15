@@ -1,6 +1,6 @@
 /* Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team. */
-/* FIREPULSE — interface des trois pages (Accueil, Explorer, Méthode et données), d'après la maquette de l'équipe.
-   Les calculs sont dans core.js ; les données viennent de site/firepulse.json et site/validation.json. */
+/* FIREPULSE — interface of the three pages (Home, Explore, Method and data), from the team's mockup.
+   The computations are in core.js; the data come from site/firepulse.json and site/validation.json. */
 (function () {
   'use strict';
   const $ = id => document.getElementById(id), page = document.body.dataset.page;
@@ -14,7 +14,7 @@
       hs: 'hotspots', median: 'médiane', percentile: 'percentile', partial: 'mois partiel', nodata: 'pas de données', ord: n => n + '<small>e</small>', west: 'O',
       calm: 'calme', veryActive: 'très actif', few: 'peu', many: 'beaucoup', below: 'sous la normale', above: 'au-dessus',
       countries: { Ghana: 'Ghana', Benin: 'Bénin', Burkina: 'Burkina Faso', gulf: 'Golfe de Guinée' },
-      // accueil
+      // home
       heroTitle: n => `${n} ans de feux vus de l’espace, en une seule série.`,
       heroLead: 'Les satellites MODIS et VIIRS ne comptent pas les feux de la même façon. FIREPULSE les raccorde pour comparer chaque mois à son historique, partout au Togo.',
       ctaExplore: 'Explorer la carte', ctaMethod: 'Lire la méthode', heroSmall: 'NASA Space Apps Challenge 2026 · Lomé · Données : NASA FIRMS (MODIS / VIIRS 375 m)',
@@ -30,7 +30,7 @@
       why3t: down => down ? 'Une fois les capteurs raccordés, l’activité des feux au Togo baisse depuis 2001. Elle ne triple pas en 2012.' : 'Une fois les capteurs raccordés, la tendance des feux au Togo depuis 2001 se lit sans le faux saut de 2012.',
       calTitle: 'Le calendrier de brûlage', calLead: (a, b) => `Chaque case est un mois. La saison des feux revient chaque année de ${a} à ${b}.`, calLink: 'Ouvrir le calendrier pour ma zone →',
       calNote: (a, b) => `Années de feu, de ${a} à ${b} · MODIS recalé jusqu’en janvier 2012, VIIRS ensuite`,
-      // explorer
+      // explore
       p1: '1 · Zone d’intérêt', zAll: 'Tout le Togo', zRegion: 'Région', zRect: 'Rectangle', regionLbl: 'Région', regionNote: 'Bandes de latitude approximatives, pas les limites administratives.',
       north: 'Nord', south: 'Sud', east: 'Est', westL: 'Ouest', badBox: 'Rectangle invalide : il faut Sud < Nord et Ouest < Est.', emptyBox: 'Aucun feu dans cette zone. La zone précédente est conservée.', rectHint: 'Modifiez les valeurs ou dessinez un rectangle sur la carte.',
       p2: '2 · Affichage', mAct: 'Activité', mAno: 'Anomalies', monthLbl: 'Mois affiché sur la carte', allYear: 'Toute l’année (moyenne 2001–2025)', meanOf: m => `${m} (moyenne 2001–2025)`,
@@ -45,7 +45,7 @@
       annTitle: 'Tendance : harmonisé contre brut', annSub: 'Total par année de feu. Le comptage brut bondit à l’arrivée de VIIRS en 2012 ; la série harmonisée exprime toute la période en équivalent VIIRS.',
       lgHarm: 'Série harmonisée', lgRaw: 'Comptage brut (MODIS puis VIIRS)', lgTs: t => `Tendance : ${t} par an`, viirsIn: 'Arrivée de VIIRS', few2: 'Pas assez d’années complètes dans cette zone.',
       calTitleZone: z => `Calendrier de brûlage · ${z}`, zoneAll: 'Tout le Togo', zoneRect: 'Rectangle', calHelp: 'Cliquer une case pour voir le mois sur la carte. Hachures : mois sans données ou à venir.',
-      // méthode
+      // method
       mEyebrow: 'Méthode · Validation · Limites · Données', mTitle: 'Comment on raccorde deux satellites.',
       mLead: 'MODIS observe depuis 2000 à 1 km de résolution, VIIRS depuis 2012 à 375 m. Nous apprenons la relation entre les deux sur leurs années communes, puis nous l’appliquons au passé.',
       st1n: 'Étape 1', st1h: 'Filtrer', st1t: 'Feux de végétation seulement, confiance MODIS ≥ 30, VIIRS nominale ou haute. Il reste 1,06 million de hotspots.',
@@ -117,12 +117,12 @@
       dls: [['Harmonized series', 'harmonized_monthly.csv', 'Per 0.1° cell and per month, 2000 → 2026'], ['Togo anomalies', 'anomalies_togo_monthly.csv', 'Median, ratio and percentile per month'], ['Cleaned hotspots', 'hotspots_clean.csv.gz', '1.06 million individual detections']]
     }
   };
-  const CMP = [[35, 36], [18, 24], [18, 21], [17, 16]];                                 // docs/METHODE.md
+  const CMP = [[35, 36], [18, 24], [18, 21], [17, 16]];                                 // docs/METHOD.md
   const REGIONS = [['Savanes', 10.0, 11.2], ['Kara', 9.2, 10.0], ['Centrale', 8.2, 9.2], ['Plateaux', 6.8, 8.2], ['Maritime', 6.0, 6.8]];
   const CITIES = [['Lomé', 6.13, 1.22, true], ['Kara', 9.55, 1.19], ['Sokodé', 8.98, 1.13], ['Dapaong', 10.86, 0.21]];
   const RAMP = ['#E6ECE3', '#F7E3B5', '#F3C06F', '#EC8F3B', '#DB5A1F', '#A93212', '#611B0C'];
   const DIV = { '-3': '#1D5FA8', '-2': '#6FA8DC', '-1': '#BBD9F2', 0: '#E6ECE3', 1: '#F3C06F', 2: '#DB5A1F', 3: '#8A2410' };
-  let lang = (navigator.language || 'en').toLowerCase().startsWith('fr') ? 'fr' : 'en';
+  let lang = 'en';
   try { lang = localStorage.getItem('fp-lang') || lang; } catch (e) { }
   let T = I18N[lang], D = null, onLang = () => { };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -148,7 +148,7 @@
   document.addEventListener('mousemove', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) showTip(el.getAttribute('data-tip'), e.clientX, e.clientY); else if (!e.target.closest || !e.target.closest('#map')) hideTip(); });
   function download(name, text) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 
-  /* ---------- carte : terres, graticule, cases, contour du Togo. Pas de fond de carte externe. ---------- */
+  /* ---------- map: land, graticule, cells, outline of Togo. No external basemap. ---------- */
   function makeMap(interactive) {
     const map = L.map('map', { zoomControl: false, attributionControl: false, zoomSnap: 0.25, zoomDelta: 0.5, minZoom: 6, maxZoom: 11, dragging: interactive, scrollWheelZoom: false, doubleClickZoom: interactive, touchZoom: interactive, boxZoom: false, keyboard: interactive });
     map.setView([8.6, 0.85], 7);
@@ -187,7 +187,7 @@
     };
   }
 
-  /* ---------- calendrier mensuel : mois en lignes, années de feu en colonnes ---------- */
+  /* ---------- monthly calendar: months as rows, fire years as columns ---------- */
   function renderCal(mon, fys, opt) {
     const start = fys.start, byMi = new Map(mon.rows.map(r => [r.mi, r])), f0 = fys.years[0].fy, f1 = fys.years[fys.years.length - 1].fy;
     const act = mon.rows.filter(r => !r.partial && r.n > 0).map(r => r.n).sort((a, b) => a - b), vmax = FP.quant(act, 0.97) || 1;
@@ -207,7 +207,7 @@
     $('calGrid').innerHTML = g; $('calYears').innerHTML = ys;
   }
 
-  /* ---------- Accueil ---------- */
+  /* ---------- Home ---------- */
   function home() {
     const agg = FP.aggregate(D, D.bbox), mon = FP.monthly(D, agg), fys = FP.fireYears(mon), m = FP.monthToDate(D, agg), mp = makeMap(false);
     mp.setCells(FP.cellMap(D, agg, 0)); mp.fit(D.bbox, 36);
@@ -232,7 +232,7 @@
     onLang = draw; draw();
   }
 
-  /* ---------- Explorer ---------- */
+  /* ---------- Explore ---------- */
   function explorer() {
     const S = { type: 'all', box: D.bbox, region: REGIONS[0][0], mode: 'act', month: 0, pick: -1, agg: null, mon: null, fys: null, cal: null, year: '' };
     const mp = makeMap(true), map = mp.map; let drawing = false, d0 = null, dRect = null;
@@ -334,7 +334,7 @@
     const pickCell = e => {
       const el = e.target.closest('[data-mi]'); if (!el) return; const mi = +el.dataset.mi; S.pick = S.pick === mi ? -1 : mi;
       const m = mi % 12, y = FP.Y0 + Math.floor(mi / 12), fy = m >= S.fys.start ? y : y - 1, lab = S.fys.start > 0 ? fy + '/' + String((fy + 1) % 100).padStart(2, '0') : String(fy);
-      if (S.cal.years.some(x => x.label === lab && x.n > 0)) S.year = lab;      // la courbe de saison suit l'année cliquée
+      if (S.cal.years.some(x => x.label === lab && x.n > 0)) S.year = lab;      // the season curve follows the clicked year
       draw();
     };
     $('yearSel').onchange = e => { S.year = e.target.value; drawCharts(); };
@@ -364,7 +364,7 @@
     window.FPX = { S, setZone };
   }
 
-  /* ---------- Méthode et données ---------- */
+  /* ---------- Method and data ---------- */
   function method() {
     let V = null;
     function chart() {

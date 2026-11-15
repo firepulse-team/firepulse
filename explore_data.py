@@ -1,4 +1,4 @@
-"""Exploration des archives FIRMS (Togo) : volumes, confiance, type, saisonnalité, chevauchement."""
+"""Exploration of the FIRMS archives (Togo): volumes, confidence, type, seasonality, overlap."""
 from pathlib import Path
 
 import pandas as pd
@@ -18,30 +18,30 @@ def load(sensor: str) -> pd.DataFrame:
 data = {s: load(s) for s in ["modis", "viirs-snpp", "viirs-jpss1"]}
 
 for s, df in data.items():
-    print(f"\n===== {s} : {len(df):,} lignes, {df.acq_date.min().date()} -> {df.acq_date.max().date()}")
+    print(f"\n===== {s} : {len(df):,} rows, {df.acq_date.min().date()} -> {df.acq_date.max().date()}")
     print("satellites :", df["satellite"].value_counts().to_dict())
     print("type       :", df["type"].value_counts().to_dict())
     print("daynight   :", df["daynight"].value_counts().to_dict())
     print("confidence :", df["confidence"].value_counts().head(6).to_dict())
     print("lat", df.latitude.min(), df.latitude.max(), "| lon", df.longitude.min(), df.longitude.max())
-    print("valeurs manquantes :", int(df.isna().sum().sum()))
-    print("doublons exacts    :", int(df.duplicated().sum()))
-    print("par année :", df.groupby("year").size().to_dict())
+    print("missing values     :", int(df.isna().sum().sum()))
+    print("exact duplicates   :", int(df.duplicated().sum()))
+    print("per year :", df.groupby("year").size().to_dict())
 
-print("\n===== MODIS par satellite et année (Aqua vs Terra)")
+print("\n===== MODIS per satellite and year (Aqua vs Terra)")
 print(data["modis"].groupby(["year", "satellite"]).size().unstack().to_string())
 
-print("\n===== Saisonnalité (moyenne mensuelle 2018-2025)")
+print("\n===== Seasonality (monthly mean 2018-2025)")
 season = pd.DataFrame(
     {s: df[df.year.between(2018, 2025)].groupby("month").size() / 8 for s, df in data.items()}
 ).round(0)
 print(season.to_string())
 
-print("\n===== Ratio VIIRS S-NPP / MODIS par année (chevauchement)")
+print("\n===== VIIRS S-NPP / MODIS ratio per year (overlap)")
 m = data["modis"].groupby("year").size()
 v = data["viirs-snpp"].groupby("year").size()
 print((v / m).dropna().round(1).to_string())
 
-print("\n===== Ratio VIIRS S-NPP / MODIS Aqua par année")
+print("\n===== VIIRS S-NPP / MODIS Aqua ratio per year")
 aq = data["modis"][data["modis"].satellite == "Aqua"].groupby("year").size()
 print((v / aq).dropna().round(1).to_string())

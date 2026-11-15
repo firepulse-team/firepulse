@@ -1,43 +1,43 @@
-# Format de la série harmonisée (contrat entre données et web app)
+# Format of the harmonized series (contract between the data and the web app)
 
-Fichier : `data/processed/harmonized_monthly.csv` (une ligne par case de grille et par mois).
+File: `data/processed/harmonized_monthly.csv` (one row per grid cell and per month).
 
-| Colonne | Type | Description |
+| Column | Type | Description |
 |---|---|---|
-| `month` | `YYYY-MM` | Mois de la détection |
-| `lat_cell` | float | Latitude du coin sud-ouest de la case (grille 0,1°) |
-| `lon_cell` | float | Longitude du coin sud-ouest de la case (grille 0,1°) |
-| `n_raw` | int | Nombre de hotspots bruts (capteur d'origine) |
-| `n_harmonized` | float | Nombre de hotspots équivalent VIIRS, comparable sur toute la période |
-| `source` | `MODIS` / `VIIRS` | Capteur d'origine de la valeur |
+| `month` | `YYYY-MM` | Month of detection |
+| `lat_cell` | float | Latitude of the south-west corner of the cell (0.1° grid) |
+| `lon_cell` | float | Longitude of the south-west corner of the cell (0.1° grid) |
+| `n_raw` | int | Number of raw hotspots (sensor of origin) |
+| `n_harmonized` | float | Number of VIIRS-equivalent hotspots, comparable over the whole period |
+| `source` | `MODIS` / `VIIRS` | Sensor the value comes from |
 
-Règles :
-- Les cases sans feu peuvent être omises : l'app considère l'absence comme 0.
-- `n_harmonized` est la seule colonne à utiliser pour les calendriers et anomalies.
-- L'export CSV de l'app contient les hotspots individuels (`data/processed/hotspots_clean.csv` : `date, lat, lon, sensor, satellite, frp, daynight`).
+Rules:
+- Cells without fire may be omitted: the app treats absence as 0.
+- `n_harmonized` is the only column to use for calendars and anomalies.
+- The CSV export of the app contains the individual hotspots (`data/processed/hotspots_clean.csv`: `date, lat, lon, sensor, satellite, frp, daynight`).
 
-Un échantillon factice est dans `sample/harmonized_monthly_sample.csv` pour développer l'app sans attendre la vraie série.
+A dummy sample is in `sample/harmonized_monthly_sample.csv`, to develop the app without waiting for the real series.
 
-## Anomalies vs médiane (`anomalies.py`)
+## Anomalies against the median (`anomalies.py`)
 
-La web app n'a rien à recalculer elle-même : elle appelle ces fonctions pour la zone choisie.
+The web app has nothing to recompute itself: it calls these functions for the chosen area.
 
 ```python
 import pandas as pd
 from anomalies import monthly_series, anomalies, month_to_date
 
 h = pd.read_csv("data/processed/harmonized_monthly.csv")
-serie = monthly_series(h, bbox=(lat_min, lat_max, lon_min, lon_max))   # bbox=None -> tout le Togo
-tableau = anomalies(serie)          # un mois par ligne
+series = monthly_series(h, bbox=(lat_min, lat_max, lon_min, lon_max))   # bbox=None -> all of Togo
+table = anomalies(series)          # one month per row
 ```
 
-Colonnes de `anomalies()` : `month, year, m, value, median, diff, ratio, percentile`
-- `median` : médiane du même mois calendaire sur 2001-2025
-- `ratio` : valeur / médiane (1 = normal, 2 = deux fois plus actif ; vide si médiane = 0)
-- `percentile` : rang du mois parmi les mêmes mois des années de référence (0 = le plus calme, 100 = le plus actif)
+Columns of `anomalies()`: `month, year, m, value, median, diff, ratio, percentile`
+- `median`: median of the same calendar month over 2001-2025
+- `ratio`: value / median (1 = normal, 2 = twice as active; empty if median = 0)
+- `percentile`: rank of the month among the same months of the reference years (0 = quietest, 100 = most active)
 
-`month_to_date(hotspots, h, bbox)` compare le mois en cours (partiel) à la même fenêtre de jours chez les années passées
-(`hotspots` = `data/processed/hotspots_clean.csv`). Sert pour « ce mois-ci est-il anormal ? ».
-Précalculé pour tout le Togo : `data/processed/anomalies_togo_monthly.csv`.
+`month_to_date(hotspots, h, bbox)` compares the current (partial) month with the same window of days in past years
+(`hotspots` = `data/processed/hotspots_clean.csv`). It answers "is this month abnormal?".
+Precomputed for all of Togo: `data/processed/anomalies_togo_monthly.csv`.
 
-Les données vont jusqu'à la date du dernier téléchargement (`python download_2026.py`). Le dernier mois est partiel.
+The data run up to the date of the last download (`python download_2026.py`). The last month is partial.

@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="site/style.css?v=5">
+<link rel="stylesheet" href="site/style.css?v=6">
 <link rel="icon" href="site/favicon.svg" type="image/svg+xml">
-<title>FIREPULSE — Accueil</title>
+<title>FIREPULSE — Home</title>
 <meta name="generator" content="Hand-coded with AI assistance (Claude, Anthropic); reviewed by the FIREPULSE team">
-<meta name="description" content="FIREPULSE raccorde 26 ans de points chauds MODIS et VIIRS (NASA FIRMS) en une seule série pour le Togo. NASA Space Apps Challenge 2026.">
+<meta name="description" content="FIREPULSE joins 26 years of MODIS and VIIRS hotspots (NASA FIRMS) into a single record for Togo. NASA Space Apps Challenge 2026.">
 </head>
 <body data-page="home">
 <header class="site"><div class="wrap">
   <a class="logo" href="index.html"><svg aria-hidden="true" width="24" height="28" viewBox="0 0 82 96"><rect x="42" y="0" width="12" height="12" rx="2" fill="#F3C06F"/><rect x="28" y="14" width="12" height="12" rx="2" fill="#F3C06F"/><rect x="42" y="14" width="12" height="12" rx="2" fill="#EC8F3B"/><rect x="28" y="28" width="12" height="12" rx="2" fill="#EC8F3B"/><rect x="42" y="28" width="12" height="12" rx="2" fill="#DB5A1F"/><rect x="56" y="28" width="12" height="12" rx="2" fill="#F3C06F"/><rect x="14" y="42" width="12" height="12" rx="2" fill="#F3C06F"/><rect x="28" y="42" width="12" height="12" rx="2" fill="#DB5A1F"/><rect x="42" y="42" width="12" height="12" rx="2" fill="#A93212"/><rect x="56" y="42" width="12" height="12" rx="2" fill="#EC8F3B"/><rect x="14" y="56" width="12" height="12" rx="2" fill="#EC8F3B"/><rect x="28" y="56" width="12" height="12" rx="2" fill="#A93212"/><rect x="42" y="56" width="12" height="12" rx="2" fill="#611B0C"/><rect x="56" y="56" width="12" height="12" rx="2" fill="#DB5A1F"/><rect x="70" y="56" width="12" height="12" rx="2" fill="#F3C06F"/><rect x="0" y="70" width="12" height="12" rx="2" fill="#F3C06F"/><rect x="14" y="70" width="12" height="12" rx="2" fill="#DB5A1F"/><rect x="28" y="70" width="12" height="12" rx="2" fill="#611B0C"/><rect x="42" y="70" width="12" height="12" rx="2" fill="#611B0C"/><rect x="56" y="70" width="12" height="12" rx="2" fill="#A93212"/><rect x="70" y="70" width="12" height="12" rx="2" fill="#EC8F3B"/><rect x="14" y="84" width="12" height="12" rx="2" fill="#EC8F3B"/><rect x="28" y="84" width="12" height="12" rx="2" fill="#A93212"/><rect x="42" y="84" width="12" height="12" rx="2" fill="#A93212"/><rect x="56" y="84" width="12" height="12" rx="2" fill="#DB5A1F"/></svg><span>FIRE<b>PULSE</b></span></a>
-  <nav class="main" data-i18n-aria="navAria"><a href="index.html" data-nav="home" data-i18n="navHome"></a><a href="explorer.html" data-nav="explorer" data-i18n="navExplorer"></a><a href="methode.html" data-nav="method" data-i18n="navMethod"></a></nav>
-  <div class="tools"><div class="seg" role="group" aria-label="Langue / Language"><button id="lgfr">FR</button><button id="lgen">EN</button></div><a class="btn" href="https://github.com/firepulse-team/firepulse">GitHub</a></div>
+  <nav class="main" data-i18n-aria="navAria"><a href="index.html" data-nav="home" data-i18n="navHome"></a><a href="explorer.html" data-nav="explorer" data-i18n="navExplorer"></a><a href="method.html" data-nav="method" data-i18n="navMethod"></a></nav>
+  <div class="tools"><div class="seg" role="group" aria-label="Language"><button id="lgen">EN</button><button id="lgfr">FR</button></div><a class="btn" href="https://github.com/firepulse-team/firepulse">GitHub</a></div>
 </div></header>
 
 <section class="wrap hero">
@@ -24,7 +24,7 @@
     <div class="eyebrow" id="heroEyebrow">TOGO · 6°N – 11°N · 0° – 2°E</div>
     <h1 id="heroTitle" data-i18n="heroTitle"></h1>
     <p class="lead" data-i18n="heroLead"></p>
-    <div class="cta"><a class="btn primary" href="explorer.html" data-i18n="ctaExplore"></a><a class="btn big" href="methode.html" data-i18n="ctaMethod"></a></div>
+    <div class="cta"><a class="btn primary" href="explorer.html" data-i18n="ctaExplore"></a><a class="btn big" href="method.html" data-i18n="ctaMethod"></a></div>
     <div class="small" data-i18n="heroSmall"></div>
   </div>
   <div class="mapbox"><div class="map" id="mapBox"><div id="map"></div>
@@ -52,7 +52,7 @@
 <div id="tip" role="tooltip"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="site/borders.js"></script>
-<script src="site/core.js?v=5"></script>
-<script src="site/site.js?v=5"></script>
+<script src="site/core.js?v=6"></script>
+<script src="site/site.js?v=6"></script>
 </body>
 </html>

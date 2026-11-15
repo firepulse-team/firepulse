@@ -1,13 +1,13 @@
-"""Télécharge 2026 via l'API FIRMS (les archives par pays s'arrêtent fin 2025).
+"""Downloads 2026 through the FIRMS API (the country archives stop at the end of 2025).
 
-Clé : variable FIRMS_MAP_KEY (fichier .env à la racine, ignoré par git).
-Sortie : data/raw/<dossier>/<dossier>_2026_Togo.csv, au même format que les archives,
-donc clean_data.py les prend automatiquement.
+Key: variable FIRMS_MAP_KEY (.env file at the root, ignored by git).
+Output: data/raw/<folder>/<folder>_2026_Togo.csv, in the same format as the archives,
+so clean_data.py picks them up automatically.
 
-- SP (retraité, fiable) puis NRT (temps quasi réel) quand SP s'arrête.
-- NRT n'a pas de colonne `type` : on suppose type = 0.
-- Requête par boîte englobante : on garde seulement les cases 0,1° qui contiennent des points
-  dans les archives du Togo (évite les pays voisins sans fichier de frontières externe).
+- SP (reprocessed, reliable) then NRT (near real time) when SP stops.
+- NRT has no `type` column: type = 0 is assumed.
+- Bounding-box query: only the 0.1° cells that contain points in the Togo archives are kept
+  (avoids neighbouring countries without an external boundary file).
 """
 import io
 import os
@@ -21,12 +21,12 @@ import pandas as pd
 
 ROOT = Path(__file__).parent
 RAW = ROOT / "data" / "raw"
-BBOX = "-0.15,6.1,1.8,11.2"  # ouest, sud, est, nord
+BBOX = "-0.15,6.1,1.8,11.2"  # west, south, east, north
 YEAR_START = date(2026, 1, 1)
 TODAY = date.today()
 RES = 0.1
 
-# dossier de sortie -> liste de (source API, premier jour, dernier jour)
+# output folder -> list of (API source, first day, last day)
 PLAN = {
     "modis": [("MODIS_SP", date(2026, 1, 1), date(2026, 8, 31)), ("MODIS_NRT", date(2026, 9, 1), TODAY)],
     "viirs-snpp": [("VIIRS_SNPP_SP", date(2026, 1, 1), date(2026, 7, 31)), ("VIIRS_SNPP_NRT", date(2026, 8, 1), TODAY)],
@@ -43,7 +43,7 @@ def get_key() -> str:
             if line.startswith("FIRMS_MAP_KEY="):
                 key = line.split("=", 1)[1].strip()
     if not key:
-        raise SystemExit("FIRMS_MAP_KEY manquante : la mettre dans .env (FIRMS_MAP_KEY=...).")
+        raise SystemExit("FIRMS_MAP_KEY missing: put it in .env (FIRMS_MAP_KEY=...).")
     return key
 
 
@@ -56,15 +56,15 @@ def fetch(key: str, source: str, start: date) -> pd.DataFrame:
             if text.startswith("latitude"):
                 return pd.read_csv(io.StringIO(text), dtype={"confidence": str})
             if "latitude" not in text and len(text.strip()) < 200 and "Invalid" in text:
-                raise SystemExit(f"Réponse API inattendue pour {source} {start}: {text.strip()}")
+                raise SystemExit(f"Unexpected API response for {source} {start}: {text.strip()}")
             return pd.DataFrame()
         except OSError:
             time.sleep(2 * (attempt + 1))
-    raise SystemExit(f"Échec réseau pour {source} {start}")
+    raise SystemExit(f"Network failure for {source} {start}")
 
 
 def togo_cells() -> set:
-    """Cases 0,1° contenant au moins un point des archives Togo (tous capteurs, 2000-2025)."""
+    """0.1° cells containing at least one point of the Togo archives (all sensors, 2000-2025)."""
     cells = set()
     for f in RAW.glob("*/*_Togo.csv"):
         if "_2026_" in f.name:
@@ -79,7 +79,7 @@ def togo_cells() -> set:
 def main():
     key = get_key()
     cells = togo_cells()
-    print(f"{len(cells)} cases 0,1° dans l'empreinte Togo")
+    print(f"{len(cells)} cells of 0.1° in the Togo footprint")
     for folder, segments in PLAN.items():
         parts = []
         for source, d0, d1 in segments:
@@ -92,7 +92,7 @@ def main():
                 d += timedelta(days=5)
             print(f"  {source}: {d0} -> {d1} ok")
         if not parts:
-            print(f"{folder}: aucune donnée")
+            print(f"{folder}: no data")
             continue
         df = pd.concat(parts, ignore_index=True)
         if "type" not in df.columns:
@@ -104,7 +104,7 @@ def main():
         out = RAW / folder / f"{folder}_2026_Togo.csv"
         out.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(out, index=False)
-        print(f"{folder}: {len(df):,} lignes, {df.acq_date.min()} -> {df.acq_date.max()} -> {out.name}")
+        print(f"{folder}: {len(df):,} rows, {df.acq_date.min()} -> {df.acq_date.max()} -> {out.name}")
 
 
 if __name__ == "__main__":

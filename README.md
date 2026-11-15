@@ -24,7 +24,7 @@ Active fires have been tracked by satellite since 2000, but by two sensor famili
 | Mean yearly error, out of sample | 5.0% |
 | Fire trend in Togo since 2001, once the sensors are joined | −2.6% per year |
 
-The method, its validation and its limits are described on the [Method and data](https://firepulse-team.github.io/firepulse/methode.html) page of the site, and in French in [`docs/METHODE.md`](docs/METHODE.md).
+The method, its validation and its limits are described on the [Method and data](https://firepulse-team.github.io/firepulse/method.html) page of the site, and in [`docs/METHOD.md`](docs/METHOD.md).
 
 ## Quick start
 
@@ -50,7 +50,7 @@ No installation, in English and French: https://firepulse-team.github.io/firepul
 |---|---|---|
 | Home | `docs/index.html` | Map of Togo, status of the current month, key figures, burning calendar |
 | Explore | `docs/explorer.html` | Area of interest (all of Togo, a region, a typed or drawn rectangle), map per month, calendar in activity or anomalies, season against history, trend, CSV export |
-| Method and data | `docs/methode.html` | Steps of the method, out-of-sample validation, methods compared, limits, files to download |
+| Method and data | `docs/method.html` | Steps of the method, out-of-sample validation, methods compared, limits, files to download |
 
 To view it locally: `cd docs && python -m http.server 8000`, then open http://localhost:8000.
 
@@ -81,7 +81,7 @@ Ready-to-use files in `data_public/`:
 
 | File | Content |
 |---|---|
-| `harmonized_monthly.csv` | Harmonized series per 0.1° cell and per month (format, in French: [`docs/FORMAT.md`](docs/FORMAT.md)) |
+| `harmonized_monthly.csv` | Harmonized series per 0.1° cell and per month (format: [`docs/FORMAT.md`](docs/FORMAT.md)) |
 | `anomalies_togo_monthly.csv` | Median, ratio and percentile per month for Togo |
 | `hotspots_clean.csv.gz` | 1.06 million filtered hotspots, readable directly with pandas |
 
@@ -91,7 +91,7 @@ Raw and intermediate data go to `data/`, which is not versioned (about 90 MB for
 
 | Step | Command | Role |
 |---|---|---|
-| 1 | `python download_firms.py` | Downloads the 2000–2025 archives. Other countries: `--pays Togo Benin Ghana` |
+| 1 | `python download_firms.py` | Downloads the 2000–2025 archives. Other countries: `--countries Togo Benin Ghana` |
 | 2 | `python download_2026.py` | Downloads 2026 through the FIRMS API (key required, see below) |
 | 3 | `python clean_data.py` | Filters by type and confidence, unifies the columns |
 | 4 | `python aggregate_grid.py` | Counts hotspots per month and per 0.1° cell |

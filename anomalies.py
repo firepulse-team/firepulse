@@ -1,13 +1,13 @@
-"""Anomalies vs médiane historique, sur la série harmonisée. Fonctions réutilisables par la web app.
+"""Anomalies against the historical median, on the harmonized series. Functions reused by the web app.
 
-  monthly_series(h, bbox)        -> série mensuelle (somme de n_harmonized) pour une zone
-  anomalies(series)              -> tableau mois par mois : valeur, médiane, ratio, écart, percentile
-  month_to_date(hotspots, h, .)  -> comparaison du mois EN COURS (partiel) à la même fenêtre de jours
+  monthly_series(h, bbox)        -> monthly series (sum of n_harmonized) for an area
+  anomalies(series)              -> month-by-month table: value, median, ratio, difference, percentile
+  month_to_date(hotspots, h, .)  -> the CURRENT (partial) month compared with the same window of days
 
-Médiane de référence = même mois calendaire sur 2001-2025 (années complètes).
-bbox = (lat_min, lat_max, lon_min, lon_max) ou None pour tout le Togo.
+Reference median = same calendar month over 2001-2025 (full years).
+bbox = (lat_min, lat_max, lon_min, lon_max) or None for all of Togo.
 
-CLI : python anomalies.py  -> data/processed/anomalies_togo_monthly.csv + résumé du mois en cours.
+CLI: python anomalies.py  -> data/processed/anomalies_togo_monthly.csv + summary of the current month.
 """
 from pathlib import Path
 
@@ -28,8 +28,8 @@ def _in_bbox(df, lat, lon, bbox):
 
 
 def monthly_series(h: pd.DataFrame, bbox=None) -> pd.Series:
-    """Somme de n_harmonized par mois (0 pour les mois sans feu), index = 'YYYY-MM'."""
-    # une case est dans la zone si son centre l'est
+    """Sum of n_harmonized per month (0 for months without fire), index = 'YYYY-MM'."""
+    # a cell is in the area if its centre is
     d = h.assign(clat=h.lat_cell + RES / 2, clon=h.lon_cell + RES / 2)
     d = d[_in_bbox(d, "clat", "clon", bbox)]
     s = d.groupby("month")["n_harmonized"].sum()
@@ -38,7 +38,7 @@ def monthly_series(h: pd.DataFrame, bbox=None) -> pd.Series:
 
 
 def _percentile(history: np.ndarray, v: float) -> float:
-    """Rang percentile (0-100) de v parmi history, ex aequo comptés pour moitié."""
+    """Percentile rank (0-100) of v within history, ties counted as half."""
     if len(history) == 0:
         return np.nan
     return 100.0 * ((history < v).sum() + 0.5 * (history == v).sum()) / len(history)
@@ -59,10 +59,10 @@ def anomalies(series: pd.Series, base_years=BASE_YEARS) -> pd.DataFrame:
 
 
 def month_to_date(hotspots: pd.DataFrame, h: pd.DataFrame, bbox=None, base_years=BASE_YEARS) -> dict:
-    """Compare le mois en cours (partiel) à la MÊME fenêtre de jours chez les années passées.
+    """Compares the current (partial) month with the SAME window of days in past years.
 
-    Équivalent VIIRS : S-NPP dès 2012 ; avant, comptage MODIS de la fenêtre x facteur
-    (n_harmonized / n_raw du mois complet, même zone). Année en cours : NOAA-20 / 1,004.
+    VIIRS equivalent: S-NPP from 2012; before, MODIS count of the window x factor
+    (n_harmonized / n_raw of the full month, same area). Current year: NOAA-20 / 1.004.
     """
     hs = hotspots[_in_bbox(hotspots, "lat", "lon", bbox)].copy()
     hs["date"] = pd.to_datetime(hs["date"])
@@ -90,12 +90,12 @@ def month_to_date(hotspots: pd.DataFrame, h: pd.DataFrame, bbox=None, base_years
     hist = np.array(list(values.values()))
     med = float(np.median(hist))
     return {
-        "periode": f"{y_now}-{m:02d}-01 -> {last.date()}",
-        "valeur": round(current, 1),
-        "mediane": round(med, 1),
+        "period": f"{y_now}-{m:02d}-01 -> {last.date()}",
+        "value": round(current, 1),
+        "median": round(med, 1),
         "ratio": round(current / med, 2) if med > 0 else None,
         "percentile": round(_percentile(hist, current), 1),
-        "annees_reference": f"{base_years[0]}-{base_years[1]}",
+        "reference_years": f"{base_years[0]}-{base_years[1]}",
     }
 
 
@@ -103,10 +103,10 @@ if __name__ == "__main__":
     h = pd.read_csv(PROC / "harmonized_monthly.csv")
     a = anomalies(monthly_series(h))
     a.to_csv(PROC / "anomalies_togo_monthly.csv", index=False)
-    print(f"{len(a)} mois -> anomalies_togo_monthly.csv")
-    print("\nDerniers mois complets (Togo) :")
+    print(f"{len(a)} months -> anomalies_togo_monthly.csv")
+    print("\nLast full months (Togo):")
     print(a[a.month.between("2025-09", "2026-10")].to_string(index=False))
     hs = pd.read_csv(PROC / "hotspots_clean.csv", usecols=["date", "lat", "lon", "sensor", "satellite"])
-    print("\nMois en cours vs même fenêtre de jours :")
+    print("\nCurrent month vs same window of days:")
     for k, v in month_to_date(hs, h).items():
         print(f"  {k}: {v}")

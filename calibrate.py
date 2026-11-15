@@ -1,18 +1,18 @@
-"""Étape 4 : calibration MODIS -> équivalent VIIRS (S-NPP), comparaison de 4 méthodes.
+"""Step 4: MODIS -> VIIRS-equivalent (S-NPP) calibration, comparison of 4 methods.
 
-Entrée : data/processed/monthly_grid.csv (voir aggregate_grid.py)
-MODIS = Aqua + Terra (seule combinaison disponible depuis 2000). Cible = S-NPP.
-Période de chevauchement utilisée : 2012-02 -> 2025-12.
+Input: data/processed/monthly_grid.csv (see aggregate_grid.py)
+MODIS = Aqua + Terra (the only combination available since 2000). Target = S-NPP.
+Overlap period used: 2012-02 -> 2025-12.
 
-Méthodes :
-  A  ratio global                      : n_viirs = r * n_modis
-  B  ratio par mois calendaire         : r dépend du mois (saison des feux)
-  C  ratio par mois + tendance annuelle: log r = mois + b * année (régression de Poisson)
-  D  quantile mapping (cases-mois)     : on aligne les distributions de comptages
+Methods:
+  A  global ratio                      : n_viirs = r * n_modis
+  B  ratio per calendar month          : r depends on the month (fire season)
+  C  ratio per month + yearly trend    : log r = month + b * year (Poisson regression)
+  D  quantile mapping (cell-months)    : the count distributions are aligned
 
-Deux validations :
-  LOYO     : on retire une année, on l'estime avec les autres (13 années, 2013-2025)
-  BACKCAST : entraînement 2018-2025, test 2012-2017 (imite l'extrapolation vers 2000-2011)
+Two validations:
+  LOYO     : one year is left out and estimated from the others (13 years, 2013-2025)
+  BACKCAST : trained on 2018-2025, tested on 2012-2017 (mimics the extrapolation to 2000-2011)
 """
 from pathlib import Path
 
@@ -37,7 +37,7 @@ def national(g: pd.DataFrame) -> pd.DataFrame:
     return g.groupby(["year", "m"])[["modis", "viirs"]].sum().reset_index()
 
 
-# ---------- méthodes : chacune renvoie une fonction predict(df_cellules) -> prédiction par ligne ----------
+# ---------- methods: each returns a function predict(df_cells) -> prediction per row ----------
 def fit_ratio_global(train):
     n = national(train)
     r = n.viirs.sum() / n.modis.sum()
@@ -78,9 +78,9 @@ def fit_quantile_mapping(train):
 
 
 METHODS = {
-    "A ratio global": fit_ratio_global,
-    "B ratio par mois": fit_ratio_month,
-    "C mois + tendance": fit_ratio_trend,
+    "A global ratio": fit_ratio_global,
+    "B ratio per month": fit_ratio_month,
+    "C month + trend": fit_ratio_trend,
     "D quantile mapping": fit_quantile_mapping,
 }
 
@@ -88,12 +88,12 @@ METHODS = {
 def score(test: pd.DataFrame, pred: np.ndarray) -> dict:
     t = test.assign(pred=pred)
     nat = t.groupby(["year", "m"])[["viirs", "pred"]].sum()
-    nat = nat[nat.viirs >= 100]  # mois assez actifs pour que l'erreur relative ait un sens
+    nat = nat[nat.viirs >= 100]  # months active enough for a relative error to make sense
     mape = (np.abs(nat.pred - nat.viirs) / nat.viirs).mean() * 100
     yr = t.groupby("year")[["viirs", "pred"]].sum()
     bias = ((yr.pred.sum() - yr.viirs.sum()) / yr.viirs.sum()) * 100
     rho = t["pred"].corr(t["viirs"], method="spearman")
-    return {"erreur mensuelle (%)": mape, "biais total (%)": bias, "corr. cases (rho)": rho}
+    return {"monthly error (%)": mape, "total bias (%)": bias, "cell corr. (rho)": rho}
 
 
 def evaluate(g: pd.DataFrame, splits) -> pd.DataFrame:
@@ -104,8 +104,8 @@ def evaluate(g: pd.DataFrame, splits) -> pd.DataFrame:
             preds.append(fit(train)(test))
             tests.append(test)
         s = score(pd.concat(tests), np.concatenate(preds))
-        rows.append({"méthode": name, **s})
-    return pd.DataFrame(rows).set_index("méthode").round(2)
+        rows.append({"method": name, **s})
+    return pd.DataFrame(rows).set_index("method").round(2)
 
 
 if __name__ == "__main__":
@@ -114,13 +114,13 @@ if __name__ == "__main__":
     loyo = [(g[g.year != y], g[g.year == y]) for y in full_years]
     back = [(g[g.year >= 2018], g[g.year < 2018])]
 
-    print("=== Validation LOYO (une année retirée à la fois, 2013-2025) ===")
+    print("=== LOYO validation (one year left out at a time, 2013-2025) ===")
     print(evaluate(g, loyo).to_string())
-    print("\n=== Validation BACKCAST (entraîné 2018-2025, testé 2012-2017) ===")
+    print("\n=== BACKCAST validation (trained 2018-2025, tested 2012-2017) ===")
     print(evaluate(g, back).to_string())
 
     n = national(g)
     full = fit_ratio_trend(g)
-    print("\nTendance estimée du ratio VIIRS/MODIS (méthode C, ratio moyen par année, tout le Togo) :")
+    print("\nEstimated trend of the VIIRS/MODIS ratio (method C, mean ratio per year, all of Togo):")
     gy = g.assign(pred=full(g)).groupby("year")[["modis", "viirs"]].sum()
     print((gy.viirs / gy.modis).round(2).to_string())
