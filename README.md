@@ -72,7 +72,7 @@ Trois pages, d'après la maquette de l'équipe, en français et en anglais :
 | Page | Fichier | Contenu |
 |---|---|---|
 | Accueil | `docs/index.html` | Carte du Togo, situation du mois en cours, les trois chiffres clés, calendrier de brûlage |
-| Explorer | `docs/explorer.html` | Zone d'intérêt (tout le Togo, région, rectangle saisi ou dessiné), carte par mois, calendrier en activité ou en anomalies, situation de la zone, export CSV |
+| Explorer | `docs/explorer.html` | Zone d'intérêt (tout le Togo, région, rectangle saisi ou dessiné), carte par mois, calendrier en activité ou en anomalies, situation de la zone, saison d'une année face à l'historique, tendance harmonisée contre brut, export CSV |
 | Méthode et données | `docs/methode.html` | Les quatre étapes, la validation hors échantillon (graphique et chiffres), les quatre méthodes comparées, les limites, les fichiers à télécharger |
 
 Le site ne refait aucun calcul d'harmonisation : il lit `docs/site/firepulse.json` (série harmonisée répartie par jour, même règle que `anomalies.month_to_date`) et `docs/site/validation.json` (série de `validate.py`). Les totaux affichés sont donc ceux du pipeline.
@@ -83,7 +83,7 @@ Mettre à jour les données du site après un nouveau passage du pipeline :
 python build_site_data.py        # écrit docs/site/firepulse.json et docs/site/validation.json
 ```
 
-`validation.json` n'est régénéré que si `data/processed/monthly_grid.csv` existe (`aggregate_grid.py`).
+`validation.json` n'est régénéré que si `data/processed/monthly_grid.csv` existe (`aggregate_grid.py`). Il contient la validation hors échantillon 2013-2025 de `validate.py`, suivie d'un test en avant sur les mois de 2026 où S-NPP observe encore (modèle entraîné jusqu'à 2025-12).
 
 Voir le site en local :
 
