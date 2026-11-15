@@ -1,8 +1,8 @@
-"""Étape 4 (suite) : produit la série harmonisée (équivalent VIIRS S-NPP) selon docs/FORMAT.md.
+"""Step 4 (continued): builds the harmonized series (VIIRS S-NPP equivalent) as in docs/FORMAT.md.
 
-- Avant 2012-02 : n_harmonized = quantile mapping (MODIS -> VIIRS), source = MODIS
-- Dès 2012-02   : n_harmonized = comptage S-NPP réel,              source = VIIRS
-Sortie : data/processed/harmonized_monthly.csv + docs/harmonization_check.png
+- Before 2012-02 : n_harmonized = quantile mapping (MODIS -> VIIRS), source = MODIS
+- From 2012-02   : n_harmonized = real S-NPP count,                  source = VIIRS
+Output: data/processed/harmonized_monthly.csv + docs/harmonization_check.png
 """
 from pathlib import Path
 
@@ -31,15 +31,15 @@ def build() -> pd.DataFrame:
     g["modis"] = g["n_aqua"] + g["n_terra"]
     g["year"] = g["month"].str[:4].astype(int)
 
-    # Avant Aqua (premier mois avec n_aqua > 0), seul Terra observe : calibration Terra seul -> VIIRS
+    # Before Aqua (first month with n_aqua > 0), Terra observes alone: Terra-only -> VIIRS calibration
     first_aqua = g.loc[g["n_aqua"] > 0, "month"].min()
-    print(f"Premier mois Aqua : {first_aqua} (avant : calibration Terra seul)")
+    print(f"First Aqua month: {first_aqua} (before: Terra-only calibration)")
     qm_terra = fit_quantile_mapping(train.assign(modis=train["n_terra"]))
 
     old = g[g["month"] < SWITCH].copy()
     old = old[old["modis"] > 0]
     exceeds = (old["modis"] > train["modis"].max()).mean() * 100
-    print(f"Cases-mois avant {SWITCH} dont le comptage MODIS dépasse le max d'entraînement : {exceeds:.2f} %")
+    print(f"Cell-months before {SWITCH} whose MODIS count exceeds the training maximum: {exceeds:.2f}%")
     old["n_raw"] = old["modis"]
     terra_only = old["month"] < first_aqua
     old["n_harmonized"] = np.where(
@@ -47,12 +47,12 @@ def build() -> pd.DataFrame:
     ).round(3)
     old["source"] = "MODIS"
 
-    # S-NPP a cessé de livrer le 2026-11-02 : à partir de ce mois, NOAA-20 (corrigé du ratio médian
-    # NOAA-20/S-NPP mesuré sur le chevauchement 2018-05 -> 2025-12) prend le relais.
+    # S-NPP stopped delivering on 2026-11-02: from that month, NOAA-20 (corrected by the median
+    # NOAA-20/S-NPP ratio measured on the 2018-05 -> 2025-12 overlap) takes over.
     nat = g.groupby("month")[["n_snpp", "n_noaa20"]].sum().loc["2018-05":"2025-12"]
     nat = nat[nat["n_snpp"] > 200]
     ratio_n20 = float((nat["n_noaa20"] / nat["n_snpp"]).median())
-    print(f"Ratio NOAA-20/S-NPP (médian) : {ratio_n20:.3f} ; NOAA-20 utilisé dès {NOAA20_FROM}")
+    print(f"NOAA-20/S-NPP ratio (median): {ratio_n20:.3f}; NOAA-20 used from {NOAA20_FROM}")
 
     new = g[g["month"] >= SWITCH].copy()
     use_n20 = new["month"] >= NOAA20_FROM
@@ -68,21 +68,21 @@ def build() -> pd.DataFrame:
 def check_plot(h: pd.DataFrame, g: pd.DataFrame) -> pd.DataFrame:
     g = g.assign(year=g["month"].str[:4].astype(int))
     h = h.assign(year=h["month"].str[:4].astype(int))
-    g, h = g[g.year <= 2025], h[h.year <= 2025]  # 2026 incomplet : exclu du graphique annuel
+    g, h = g[g.year <= 2025], h[h.year <= 2025]  # 2026 is incomplete: excluded from the yearly chart
     yearly = pd.DataFrame(
         {
-            "MODIS brut": (g["n_aqua"] + g["n_terra"]).groupby(g.year).sum(),
-            "VIIRS S-NPP brut": g["n_snpp"].groupby(g.year).sum().where(lambda s: s > 0),
-            "Série harmonisée": h["n_harmonized"].groupby(h.year).sum(),
+            "Raw MODIS": (g["n_aqua"] + g["n_terra"]).groupby(g.year).sum(),
+            "Raw VIIRS S-NPP": g["n_snpp"].groupby(g.year).sum().where(lambda s: s > 0),
+            "Harmonized series": h["n_harmonized"].groupby(h.year).sum(),
         }
     )
     fig, ax = plt.subplots(figsize=(10, 4.5))
-    ax.plot(yearly.index, yearly["MODIS brut"], "o--", color="#d95f02", label="MODIS brut")
-    ax.plot(yearly.index, yearly["VIIRS S-NPP brut"], "s--", color="#1b9e77", label="VIIRS S-NPP brut")
-    ax.plot(yearly.index, yearly["Série harmonisée"], "-", lw=2.5, color="#222222", label="Série harmonisée (équiv. VIIRS)")
+    ax.plot(yearly.index, yearly["Raw MODIS"], "o--", color="#d95f02", label="Raw MODIS")
+    ax.plot(yearly.index, yearly["Raw VIIRS S-NPP"], "s--", color="#1b9e77", label="Raw VIIRS S-NPP")
+    ax.plot(yearly.index, yearly["Harmonized series"], "-", lw=2.5, color="#222222", label="Harmonized series (VIIRS equiv.)")
     ax.axvline(2012, color="grey", ls=":")
-    ax.set_ylabel("hotspots / an (Togo)")
-    ax.set_title("FIREPULSE — la série harmonisée corrige la rupture MODIS → VIIRS")
+    ax.set_ylabel("hotspots / year (Togo)")
+    ax.set_title("FIREPULSE — the harmonized series removes the MODIS → VIIRS break")
     ax.legend()
     ax.grid(alpha=0.3)
     FIG.parent.mkdir(exist_ok=True)
@@ -94,6 +94,6 @@ def check_plot(h: pd.DataFrame, g: pd.DataFrame) -> pd.DataFrame:
 if __name__ == "__main__":
     h = build()
     h.to_csv(OUT, index=False)
-    print(f"{len(h):,} lignes -> {OUT}")
+    print(f"{len(h):,} rows -> {OUT}")
     yearly = check_plot(h, pd.read_csv(SRC))
     print(yearly.round(0).to_string())

@@ -1,11 +1,11 @@
-# Pipeline de données
+# Data pipeline
 requests
 pandas
 numpy
 scikit-learn
 matplotlib
 
-# Web app (à ajuster par l'équipe)
+# Web app
 streamlit
 folium
 streamlit-folium

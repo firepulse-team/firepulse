@@ -1,9 +1,9 @@
-"""Étape 3 : agrège les hotspots nettoyés par mois et par case de grille (0,1° par défaut).
+"""Step 3: aggregates the cleaned hotspots per month and per grid cell (0.1° by default).
 
-Entrée  : data/processed/hotspots_clean.csv
-Sortie  : data/processed/monthly_grid.csv
-Colonnes: month, lat_cell, lon_cell, n_aqua, n_terra, n_snpp, n_noaa20
-(lat_cell/lon_cell = coin sud-ouest de la case)
+Input  : data/processed/hotspots_clean.csv
+Output : data/processed/monthly_grid.csv
+Columns: month, lat_cell, lon_cell, n_aqua, n_terra, n_snpp, n_noaa20
+(lat_cell/lon_cell = south-west corner of the cell)
 """
 import argparse
 from pathlib import Path
@@ -21,7 +21,7 @@ COLS = {"Aqua": "n_aqua", "Terra": "n_terra", "SNPP": "n_snpp", "NOAA20": "n_noa
 def aggregate(df: pd.DataFrame, res: float = 0.1) -> pd.DataFrame:
     df = df.copy()
     df["month"] = pd.to_datetime(df["date"]).dt.to_period("M").astype(str)
-    # np.floor sur lat/res, arrondi pour éviter 6.199999 -> 6.1
+    # np.floor on lat/res, rounded to avoid 6.199999 -> 6.1
     df["lat_cell"] = (np.floor(df["lat"] / res + 1e-9) * res).round(4)
     df["lon_cell"] = (np.floor(df["lon"] / res + 1e-9) * res).round(4)
     grid = df.groupby(["month", "lat_cell", "lon_cell", "satellite"]).size().unstack(fill_value=0)
@@ -31,11 +31,11 @@ def aggregate(df: pd.DataFrame, res: float = 0.1) -> pd.DataFrame:
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("--res", type=float, default=0.1, help="taille de case en degrés")
+    p.add_argument("--res", type=float, default=0.1, help="cell size in degrees")
     args = p.parse_args()
     if not SRC.exists():
-        raise SystemExit("Lancer clean_data.py d'abord.")
+        raise SystemExit("Run clean_data.py first.")
     grid = aggregate(pd.read_csv(SRC, usecols=["date", "lat", "lon", "satellite"]), args.res)
     grid.to_csv(OUT, index=False)
-    print(f"{len(grid):,} lignes (mois x case) -> {OUT}")
+    print(f"{len(grid):,} rows (month x cell) -> {OUT}")
     print(grid[list(COLS.values())].sum().to_string())

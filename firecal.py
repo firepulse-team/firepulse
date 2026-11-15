@@ -1,8 +1,8 @@
-"""Calculs du calendrier de brûlage pour la web app (app.py). Aucune dépendance à Streamlit.
+"""Burning calendar computations for the web app (app.py). No dependency on Streamlit.
 
-Les anomalies (médiane, ratio, percentile) viennent de anomalies.py, pour que l'app affiche
-exactement les mêmes chiffres que le pipeline. Ce module ajoute ce qui est propre au calendrier :
-année de feu, niveaux calme / actif / critique, totaux annuels, tendance.
+The anomalies (median, ratio, percentile) come from anomalies.py, so that the app shows
+exactly the same figures as the pipeline. This module adds what is specific to the calendar:
+fire year, quiet / active / critical levels, yearly totals, trend.
 
 Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team.
 """
@@ -17,7 +17,7 @@ import anomalies as an
 ROOT = Path(__file__).parent
 RES = an.RES
 BASE = an.BASE_YEARS
-# Ordre de recherche : pipeline local, puis données prêtes à l'emploi du dépôt, puis échantillon factice
+# Search order: local pipeline, then the ready-to-use data of the repository, then the dummy sample
 SERIES = [("processed", ROOT / "data" / "processed" / "harmonized_monthly.csv"),
           ("public", ROOT / "data_public" / "harmonized_monthly.csv"),
           ("sample", ROOT / "sample" / "harmonized_monthly_sample.csv")]
@@ -25,7 +25,7 @@ HOTSPOTS = [ROOT / "data" / "processed" / "hotspots_clean.csv", ROOT / "data_pub
 
 
 def load_series() -> tuple[pd.DataFrame, str]:
-    """Série harmonisée par case et par mois. Renvoie (table, origine) ; origine = processed / public / sample."""
+    """Harmonized series per cell and per month. Returns (table, origin); origin = processed / public / sample."""
     origin, path = next((o, p) for o, p in SERIES if p.exists())
     df = pd.read_csv(path)
     df["year"] = df["month"].str[:4].astype(int)
@@ -38,15 +38,15 @@ def hotspots_path() -> Path | None:
 
 
 def in_bbox(df: pd.DataFrame, south: float, north: float, west: float, east: float) -> pd.DataFrame:
-    """Cases dont le centre tombe dans le rectangle."""
+    """Cells whose centre falls inside the rectangle."""
     lat, lon = df["lat_cell"] + RES / 2, df["lon_cell"] + RES / 2
     return df[(lat >= south) & (lat <= north) & (lon >= west) & (lon <= east)]
 
 
 def monthly(df: pd.DataFrame, box: tuple, last_partial: bool) -> pd.DataFrame:
-    """Un mois par ligne pour la zone : valeur harmonisée, médiane 2001-2025, % de la médiane, rang, catégorie.
+    """One month per row for the area: harmonized value, 2001-2025 median, % of the median, rank, category.
 
-    box = (sud, nord, ouest, est). last_partial : le dernier mois de la série est incomplet.
+    box = (south, north, west, east). last_partial: the last month of the series is incomplete.
     """
     a = an.anomalies(an.monthly_series(df, bbox=box))
     sub = in_bbox(df, *box)
@@ -59,7 +59,7 @@ def monthly(df: pd.DataFrame, box: tuple, last_partial: bool) -> pd.DataFrame:
     mo["partial"] = False
     if last_partial:
         mo.loc[mo.index[-1], "partial"] = True
-    floor = max(3.0, 0.02 * mo["median"].max())  # sous ce seuil, de petits nombres ne font pas une anomalie
+    floor = max(3.0, 0.02 * mo["median"].max())  # below this threshold, small numbers do not make an anomaly
     small = (mo["n"] < floor) & (mo["median"] < floor)
     k = mo["rank"]
     cat = np.select([k >= 0.98, k >= 0.9, k >= 0.75, k <= 0.02, k <= 0.1, k <= 0.25], [3, 2, 1, -3, -2, -1], 0)
@@ -68,7 +68,7 @@ def monthly(df: pd.DataFrame, box: tuple, last_partial: bool) -> pd.DataFrame:
 
 
 def climatology(mo: pd.DataFrame) -> pd.DataFrame:
-    """Par mois de l'année, sur les années de référence : médiane, percentiles, part annuelle, niveau (0, 1, 2)."""
+    """Per month of the year, over the reference years: median, percentiles, yearly share, level (0, 1, 2)."""
     q = mo[mo["year"].between(*BASE)].groupby("m")["n"]
     c = pd.DataFrame({"median": q.median(), "p25": q.quantile(0.25), "p75": q.quantile(0.75), "p90": q.quantile(0.90), "max": q.max(), "years": q.count()})
     c = c.reindex(range(1, 13)).fillna(0.0)
@@ -79,7 +79,7 @@ def climatology(mo: pd.DataFrame) -> pd.DataFrame:
 
 
 def fire_year_start(clim: pd.DataFrame) -> int:
-    """Premier mois de l'« année de feu » : celui qui suit les deux mois consécutifs les plus calmes."""
+    """First month of the "fire year": the one that follows the two quietest consecutive months."""
     med = clim.set_index("m")["median"]
     pair = {m: med[m] + med[m % 12 + 1] for m in range(1, 13)}
     quiet = min(pair, key=pair.get)
@@ -87,7 +87,7 @@ def fire_year_start(clim: pd.DataFrame) -> int:
 
 
 def add_fire_year(mo: pd.DataFrame, start: int) -> pd.DataFrame:
-    """Ajoute fy (année de début de saison), pos (0..11) et le libellé « 2015/16 »."""
+    """Adds fy (year the season starts), pos (0..11) and the label "2015/16"."""
     mo = mo.copy()
     mo["fy"] = np.where(mo["m"] >= start, mo["year"], mo["year"] - 1)
     mo["pos"] = (mo["m"] - start) % 12
@@ -96,7 +96,7 @@ def add_fire_year(mo: pd.DataFrame, start: int) -> pd.DataFrame:
 
 
 def yearly(mo: pd.DataFrame) -> pd.DataFrame:
-    """Total par année de feu. Complète = 12 mois entiers (pas de mois partiel, pas de janvier 2012 mixte exclu)."""
+    """Total per fire year. Complete = 12 full months (no partial month)."""
     full = mo[~mo["partial"]]
     y = full.groupby(["fy", "label"]).agg(n=("n", "sum"), raw=("raw", "sum"), months=("n", "size"), source=("source", lambda s: s.mode().iat[0])).reset_index()
     y["complete"] = (y["months"] == 12) & (y["fy"] >= BASE[0])
@@ -104,7 +104,7 @@ def yearly(mo: pd.DataFrame) -> pd.DataFrame:
 
 
 def trend(x, y) -> dict | None:
-    """Pente de Theil–Sen (en % de la médiane par an) et test de Mann–Kendall."""
+    """Theil–Sen slope (in % of the median per year) and Mann–Kendall test."""
     x, y = np.asarray(x, float), np.asarray(y, float)
     n = len(x)
     if n < 6:
@@ -119,7 +119,7 @@ def trend(x, y) -> dict | None:
 
 
 def cell_frequency(sub: pd.DataFrame, month: int | None) -> pd.DataFrame:
-    """Hotspots harmonisés par case et par an sur les années de référence (pour la carte)."""
+    """Harmonized hotspots per cell and per year over the reference years (for the map)."""
     d = sub[sub["year"].between(*BASE)]
     d = d if not month else d[d["m"] == month]
     g = d.groupby(["lat_cell", "lon_cell"])["n_harmonized"].sum().reset_index()

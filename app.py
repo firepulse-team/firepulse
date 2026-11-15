@@ -1,9 +1,9 @@
-"""FIREPULSE — web app : calendrier de brûlage harmonisé MODIS + VIIRS.
+"""FIREPULSE — web app: harmonized MODIS + VIIRS burning calendar.
 
-Lancer :  streamlit run app.py
-Lit la série harmonisée (format : docs/FORMAT.md) dans data/processed/ si le pipeline a tourné,
-sinon dans data_public/ (données prêtes à l'emploi du dépôt), sinon l'échantillon factice de sample/.
-Les anomalies sont calculées par anomalies.py, comme dans le pipeline.
+Run:  streamlit run app.py
+Reads the harmonized series (format: docs/FORMAT.md) from data/processed/ if the pipeline has run,
+otherwise from data_public/ (ready-to-use data of the repository), otherwise the dummy sample in sample/.
+The anomalies are computed by anomalies.py, as in the pipeline.
 
 Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team.
 """
@@ -86,7 +86,7 @@ TXT = {
         "foot": "Built for the NASA Space Apps Challenge 2026 with NASA FIRMS data (MODIS Collection 6.1, VIIRS 375 m S-NPP / NOAA-20). Results are the team's own and do not represent NASA.",
     },
 }
-# Bandes de latitude approximatives des régions du Togo (sud, nord)
+# Approximate latitude bands of the regions of Togo (south, north)
 REGIONS = {"Savanes": (10.0, 11.2), "Kara": (9.2, 10.0), "Centrale": (8.2, 9.2), "Plateaux": (6.8, 8.2), "Maritime": (6.0, 6.8)}
 C_HARM, C_RAW, C_INK = "#eb6834", "#2a78d6", "#52514e"
 HEAT = [[0, "#f3f1ec"], [0.15, "#fbe3d3"], [0.35, "#f6c3a3"], [0.55, "#ee9967"], [0.75, "#e06a30"], [0.9, "#b64717"], [1, "#74290b"]]
@@ -119,13 +119,13 @@ df, origin = get_series()
 is_sample = origin == "sample"
 hot = all_hotspots()
 last_day = None if hot is None else hot["date"].max()
-# Le dernier mois est partiel si les hotspots ne vont pas jusqu'à son dernier jour (docs/FORMAT.md)
+# The last month is partial if the hotspots do not reach its last day (docs/FORMAT.md)
 last_partial = (not is_sample) and (last_day is None or (last_day.strftime("%Y-%m") == df["month"].max() and not last_day.is_month_end))
 ext = (float(df.lat_cell.min()), float(df.lat_cell.max()) + fc.RES, float(df.lon_cell.min()), float(df.lon_cell.max()) + fc.RES)  # S, N, W, E
 
-# ---------- barre latérale ----------
+# ---------- sidebar ----------
 with st.sidebar:
-    lang = "fr" if st.radio("Langue / Language", ["Français", "English"], horizontal=True) == "Français" else "en"
+    lang = "fr" if st.radio("Language / Langue", ["English", "Français"], horizontal=True) == "Français" else "en"
     T, MO = TXT[lang], MONTHS[lang]
     choices = [T["whole"]] + [r for r, (s, n) in REGIONS.items() if s < ext[1] and n > ext[0]] + [T["custom"]]
     if "drawn" in st.session_state:
@@ -155,14 +155,14 @@ sub = fc.in_bbox(df, *box)
 if sub.empty:
     st.error(T["empty"]); st.stop()
 
-# ---------- calculs ----------
+# ---------- computations ----------
 mo = fc.monthly(df, box, last_partial)
 clim = fc.climatology(mo)
 start = fc.fire_year_start(clim) if use_fy else 1
 mo = fc.add_fire_year(mo, start)
 yr = fc.yearly(mo)
 done = yr[yr.complete]
-order = [(start - 1 + i) % 12 + 1 for i in range(12)]  # mois dans l'ordre de l'année de feu
+order = [(start - 1 + i) % 12 + 1 for i in range(12)]  # months in fire-year order
 xlab = [MO[m - 1] for m in order]
 labels = list(yr.sort_values("fy").label)
 with st.sidebar:
@@ -170,7 +170,7 @@ with st.sidebar:
     sel = st.selectbox(T["year"], opts, index=len(opts) - 1)
     st.caption(f"{box[0]:.1f}–{box[1]:.1f}° N · {box[2]:.1f}–{box[3]:.1f}° E · {sub[['lat_cell', 'lon_cell']].drop_duplicates().shape[0]} cases")
 
-# ---------- indicateurs ----------
+# ---------- indicators ----------
 crit = [m for m in order if clim.set_index("m").level[m] == 2]
 lastrow = mo[~mo.partial].iloc[-1]
 tr = fc.trend(done.fy, done.n) if len(done) >= 6 else None
@@ -187,12 +187,12 @@ if last_partial:
     if hot is not None and not is_sample:
         c = current_month(box)
         if c["ratio"] is not None:
-            st.info(T["partial"].format(p=c["periode"].replace("->", "→"), v=c["valeur"], r=100 * c["ratio"], y=c["annees_reference"], q=c["percentile"]))
+            st.info(T["partial"].format(p=c["period"].replace("->", "→"), v=c["value"], r=100 * c["ratio"], y=c["reference_years"], q=c["percentile"]))
     st.caption(T["partial_no"].format(m=f"{MO[int(pm.m) - 1]} {int(pm.year)}"))
 
 tabs = st.tabs([T["t_cal"], T["t_season"], T["t_trend"], T["t_map"], T["t_crit"], T["t_exp"]])
 
-# ---------- calendrier ----------
+# ---------- calendar ----------
 with tabs[0]:
     c1, c2 = st.columns([3, 1])
     c1.subheader(T["cal_h"])
@@ -212,7 +212,7 @@ with tabs[0]:
     st.plotly_chart(fig, width="stretch")
     st.caption(T["cal_cap"])
 
-# ---------- saison ----------
+# ---------- season ----------
 with tabs[1]:
     st.subheader(T["sea_h"].format(y=sel))
     c = clim.set_index("m").loc[order]
@@ -226,7 +226,7 @@ with tabs[1]:
     fig.update_layout(height=420, margin=dict(l=10, r=10, t=20, b=10), yaxis=dict(title=T["ylab"], rangemode="tozero"), hovermode="x unified", legend=dict(orientation="h", y=-0.15))
     st.plotly_chart(fig, width="stretch")
 
-# ---------- tendance ----------
+# ---------- trend ----------
 with tabs[2]:
     st.subheader(T["tr_h"])
     fig = go.Figure()
@@ -238,7 +238,7 @@ with tabs[2]:
     st.plotly_chart(fig, width="stretch")
     st.caption(T["tr_cap"])
 
-# ---------- carte ----------
+# ---------- map ----------
 with tabs[3]:
     st.subheader(T["map_h"])
     pick = st.selectbox(T["map_m"], [T["all"]] + MO)
@@ -264,7 +264,7 @@ with tabs[3]:
             st.rerun()
     st.caption(T["map_cap"])
 
-# ---------- périodes critiques ----------
+# ---------- critical periods ----------
 with tabs[4]:
     st.subheader(T["crit_h"])
     c = clim.set_index("m").loc[order].reset_index()

@@ -1,7 +1,7 @@
-Validation hors échantillon (une année retirée à la fois), 2013-2025, Togo
-- Corrélation mensuelle nationale : r = 0.995 (tous mois) ; 0.994 (mois >= 100 hotspots)
-- Erreur mensuelle moyenne (mois >= 100 hotspots) : 16.6 %
-- Erreur annuelle nationale : moyenne 5.0 %, max 8.8 % (2024)
-- Total 2013-2025 : prédit 478,719 vs réel 492,318 (-2.8 %)
-- Cases 0,1° (>= 200 hotspots réels, n = 473) : corrélation de rang sur le total = 0.895
-- Biais par case : médiane -5.1 %, 80 % des cases entre -28 % et +29 %
+Out-of-sample validation (one year left out at a time), 2013-2025, Togo
+- National monthly correlation: r = 0.995 (all months); 0.994 (months >= 100 hotspots)
+- Mean monthly error (months >= 100 hotspots): 16.6%
+- National yearly error: mean 5.0%, max 8.8% (2024)
+- Total 2013-2025: predicted 478,719 vs real 492,318 (-2.8%)
+- 0.1° cells (>= 200 real hotspots, n = 473): rank correlation on the total = 0.895
+- Bias per cell: median -5.1%, 80% of cells between -28% and +29%

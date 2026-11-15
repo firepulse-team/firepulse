@@ -1,6 +1,6 @@
 /* Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team. */
-/* FIREPULSE — calculs du site (sans DOM). Lit docs/site/firepulse.json, produit par build_site_data.py.
-   Les valeurs harmonisées viennent du pipeline (quantile mapping) ; ici on ne fait que les agréger. */
+/* FIREPULSE — site computations (no DOM). Reads docs/site/firepulse.json, produced by build_site_data.py.
+   The harmonized values come from the pipeline (quantile mapping); here they are only aggregated. */
 (function (root) {
   'use strict';
   const FP = {}, DAY = 864e5, EPOCH = Date.UTC(2000, 0, 1), Y0 = 2000, YMAX = 2040, W = 52, BASE = [2001, 2025];
@@ -9,7 +9,7 @@
   FP.dateOf = day => new Date(EPOCH + day * DAY);
   FP.ymd = day => FP.dateOf(day).toISOString().slice(0, 10);
 
-  // Tables jour -> semaine (52 blocs de 7 jours depuis le 1er janvier ; le dernier absorbe 1 ou 2 jours) et jour -> mois
+  // Day -> week tables (52 blocks of 7 days from 1 January; the last one absorbs 1 or 2 days) and day -> month
   const ND = FP.dayOf(YMAX, 1, 1), NBIN = (YMAX - Y0) * W;
   const dBin = new Int32Array(ND), dMi = new Int32Array(ND), dDom = new Uint8Array(ND), binStart = new Int32Array(NBIN), binLen = new Uint8Array(NBIN);
   for (let y = Y0, d = 0; y < YMAX; y++) {
@@ -34,16 +34,16 @@
     let s = 1e9, w = 1e9, nn = -1e9, e = -1e9;
     for (let i = 0; i < n; i++) { if (D.iy[i] < s) s = D.iy[i]; if (D.iy[i] > nn) nn = D.iy[i]; if (D.ix[i] < w) w = D.ix[i]; if (D.ix[i] > e) e = D.ix[i]; }
     const r = x => Math.round(x * 10) / 10;
-    D.bbox = [r(s * D.res), r((nn + 1) * D.res), r(w * D.res), r((e + 1) * D.res)];   // sud, nord, ouest, est
+    D.bbox = [r(s * D.res), r((nn + 1) * D.res), r(w * D.res), r((e + 1) * D.res)];   // south, north, west, east
     D.lastMi = dMi[D.last]; D.firstMi = dMi[D.first];
-    D.partial = FP.dateOf(D.last + 1).getUTCDate() !== 1;                              // le dernier mois est-il incomplet ?
+    D.partial = FP.dateOf(D.last + 1).getUTCDate() !== 1;                              // is the last month incomplete?
     return D;
   };
   FP.srcOf = (D, day) => day < D.aqua ? 'T' : day < D.sw ? 'M' : day < D.n20 ? 'S' : 'J';
   FP.cellId = (iy, ix) => (iy + 900) * 4000 + (ix + 1800);
   FP.cellSW = (D, id) => [(Math.floor(id / 4000) - 900) * D.res, (id % 4000 - 1800) * D.res];
 
-  // Agrégation sur la zone : box = [sud, nord, ouest, est] ; une case est dans la zone si son centre l'est
+  // Aggregation over the area: box = [south, north, west, east]; a cell is in the area if its centre is
   FP.aggregate = function (D, box) {
     const h = D.res / 2, nd = D.last + 1, daily = new Float64Array(nd), dailyRaw = new Float64Array(nd), idx = [], cells = new Set();
     for (let i = 0; i < D.n; i++) {
@@ -53,7 +53,7 @@
     }
     const nb = (FP.binYear(dBin[D.last]) - Y0 + 1) * W, H = new Float64Array(nb).fill(NaN), naive = new Float64Array(nb).fill(NaN), src = new Array(nb).fill('');
     for (let b = 0; b < nb; b++) {
-      const a = binStart[b], z = a + binLen[b] - 1; if (a < D.first || z > D.last) continue;       // semaines entièrement observées seulement
+      const a = binStart[b], z = a + binLen[b] - 1; if (a < D.first || z > D.last) continue;       // fully observed weeks only
       let s = 0, r = 0; for (let d = a; d <= z; d++) { s += daily[d]; r += dailyRaw[d]; }
       H[b] = s * 7 / binLen[b]; naive[b] = r * 7 / binLen[b]; src[b] = FP.srcOf(D, a);
     }
@@ -62,7 +62,7 @@
     return { nb, H, naive, src, idx, nCells: cells.size, daily, mH, mR, total: idx.length };
   };
 
-  // Tableau mensuel : même définition que anomalies.py (médiane et percentile du même mois sur 2001-2025)
+  // Monthly table: same definition as anomalies.py (median and percentile of the same month over 2001-2025)
   FP.monthly = function (D, agg) {
     const hist = []; for (let m = 0; m < 12; m++) { const a = []; for (let y = BASE[0]; y <= BASE[1]; y++) a.push(agg.mH[(y - Y0) * 12 + m]); hist.push(sorted(a)); }
     const med = hist.map(a => quant(a, 0.5)), peak = Math.max(...med), tot = med.reduce((x, y) => x + y, 0);
@@ -75,7 +75,7 @@
     return { rows, clim };
   };
 
-  // Totaux par année de feu, à partir des mois (même règle que firecal.py : l'année commence après les 2 mois les plus calmes)
+  // Totals per fire year, from the months (same rule as firecal.py: the year starts after the 2 quietest months)
   FP.fireYears = function (mon) {
     const med = mon.clim.map(c => c.median); let q = 0, best = Infinity;
     for (let m = 0; m < 12; m++) { const t = med[m] + med[(m + 1) % 12]; if (t < best) { best = t; q = m; } }
@@ -90,7 +90,7 @@
     return { start, years, done, median, trend: FP.trend(done.map(y => y.fy), done.map(y => y.total)) };
   };
 
-  // Mois en cours (partiel) comparé à la même fenêtre de jours des années de référence (comme anomalies.month_to_date)
+  // Current (partial) month compared with the same window of days in the reference years (as anomalies.month_to_date)
   FP.monthToDate = function (D, agg) {
     const dt = FP.dateOf(D.last), m = dt.getUTCMonth() + 1, dEnd = dt.getUTCDate(), yNow = dt.getUTCFullYear();
     const win = y => { let s = 0; for (let d = FP.dayOf(y, m, 1), z = FP.dayOf(y, m, dEnd); d <= z; d++) s += agg.daily[d] || 0; return s; };
@@ -99,12 +99,12 @@
     return { from: FP.dayOf(yNow, m, 1), to: D.last, value: v, median: med, ratio: med > 0 ? v / med : NaN, pct: 100 * (lt + 0.5 * eq) / hist.length };
   };
 
-  /* Calendrier hebdomadaire : année de feu, climatologie, niveaux, anomalies par rang */
+  /* Weekly calendar: fire year, climatology, levels, anomalies by rank */
   FP.calendar = function (agg) {
     const { nb, H, src, naive } = agg, m = new Float64Array(W), c = new Float64Array(W);
     for (let b = 0; b < nb; b++) if (!isNaN(H[b])) { m[b % W] += H[b]; c[b % W]++; }
     for (let w = 0; w < W; w++) m[w] = c[w] ? m[w] / c[w] : 0;
-    let best = Infinity, start = 0;                                       // l'année de feu commence après les 4 semaines les plus calmes
+    let best = Infinity, start = 0;                                       // the fire year starts after the 4 quietest weeks
     for (let w = 0; w < W; w++) { const t = m[w] + m[circ(w, 1)] + m[circ(w, 2)] + m[circ(w, 3)]; if (t < best - 1e-9) { best = t; start = circ(w, 2); } }
     const fy0 = Y0 - (start > 0 ? 1 : 0), nfy = Math.ceil(nb / W) + (start > 0 ? 1 : 0), mat = [], srcMat = [], binOf = [];
     for (let f = 0; f < nfy; f++) { mat.push(new Float64Array(W).fill(NaN)); srcMat.push(new Array(W).fill('')); binOf.push(new Int32Array(W).fill(-1)); }
@@ -144,7 +144,7 @@
   };
   FP.posToDay = (cal, fy, p) => { const w = (p + cal.start) % W, y = w >= cal.start ? fy : fy + 1; return binStart[(y - Y0) * W + w]; };
 
-  // Tendance : pente de Theil–Sen (en % de la médiane par an) et test de Mann–Kendall
+  // Trend: Theil–Sen slope (in % of the median per year) and Mann–Kendall test
   FP.trend = function (x, y) {
     const n = x.length; if (n < 6) return null; const sl = []; let S = 0;
     for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { sl.push((y[j] - y[i]) / (x[j] - x[i])); S += Math.sign(y[j] - y[i]); }
@@ -154,7 +154,7 @@
     return { slope, intercept: icpt, pct: med > 0 ? 100 * slope / med : NaN, p: 2 * (1 - cdf), n };
   };
 
-  // Dernière semaine complète face au calendrier, et les 8 semaines suivantes
+  // Last full week against the calendar, and the 8 following weeks
   FP.status = function (cal) {
     let lf = -1, lp = -1;
     for (let f = cal.nfy - 1; f >= 0 && lf < 0; f--) for (let p = W - 1; p >= 0; p--) if (!isNaN(cal.mat[f][p])) { lf = f; lp = p; break; }
@@ -163,20 +163,20 @@
     return { row: lf, pos: lp, level: cal.level[lp], cat: cal.cat[lf][lp], next };
   };
 
-  // Carte : hotspots harmonisés par case et par an sur les années de référence, pour un mois (1-12) ou l'année entière (0)
+  // Map: harmonized hotspots per cell and per year over the reference years, for one month (1-12) or the whole year (0)
   FP.cellMap = function (D, agg, month) {
     const out = new Map(), d0 = FP.dayOf(BASE[0], 1, 1), d1 = FP.dayOf(BASE[1] + 1, 1, 1), ny = BASE[1] - BASE[0] + 1;
     for (const i of agg.idx) { const d = D.day[i]; if (d < d0 || d >= d1 || (month && dMi[d] % 12 !== month - 1)) continue; const id = FP.cellId(D.iy[i], D.ix[i]); out.set(id, (out.get(id) || 0) + D.harm[i] / ny); }
     return out;
   };
 
-  // Carte d'un mois précis (mi = (année - 2000) * 12 + mois) : hotspots harmonisés par case
+  // Map of a given month (mi = (year - 2000) * 12 + month): harmonized hotspots per cell
   FP.cellMapMonth = function (D, agg, mi) {
     const out = new Map();
     for (const i of agg.idx) { if (dMi[D.day[i]] !== mi) continue; const id = FP.cellId(D.iy[i], D.ix[i]); out.set(id, (out.get(id) || 0) + D.harm[i]); }
     return out;
   };
-  // Catégorie d'anomalie d'un mois (-3..3) à partir du percentile de anomalies.py
+  // Anomaly category of a month (-3..3) from the percentile of anomalies.py
   FP.monthCat = function (r, floor) {
     if (r.partial || (r.n < floor && r.median < floor)) return 0; const k = r.pct;
     return k >= 98 ? 3 : k >= 90 ? 2 : k >= 75 ? 1 : k <= 2 ? -3 : k <= 10 ? -2 : k <= 25 ? -1 : 0;

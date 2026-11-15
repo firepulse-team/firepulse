@@ -1,8 +1,8 @@
-"""Étape 2 : charge MODIS + VIIRS, filtre, uniformise, écrit data/processed/hotspots_clean.csv.
+"""Step 2: loads MODIS + VIIRS, filters, unifies, writes data/processed/hotspots_clean.csv.
 
-Colonnes de sortie : date, lat, lon, sensor, satellite, frp, daynight
-- type == 0 uniquement (feux de végétation, sans sources statiques ni offshore)
-- confiance : MODIS >= 30 ; VIIRS 'n' ou 'h' (on écarte 'l')
+Output columns: date, lat, lon, sensor, satellite, frp, daynight
+- type == 0 only (vegetation fires, no static or offshore sources)
+- confidence: MODIS >= 30; VIIRS 'n' or 'h' ('l' is dropped)
 """
 from pathlib import Path
 
@@ -19,7 +19,7 @@ VIIRS_OK_CONF = {"n", "h"}
 def load_sensor(folder: str) -> pd.DataFrame:
     files = sorted((RAW / folder).glob("*.csv"))
     if not files:
-        raise SystemExit(f"Aucun fichier dans {RAW / folder} : lancer download_firms.py d'abord.")
+        raise SystemExit(f"No file in {RAW / folder}: run download_firms.py first.")
     return pd.concat((pd.read_csv(f, dtype={"confidence": str}) for f in files), ignore_index=True)
 
 
@@ -55,5 +55,5 @@ if __name__ == "__main__":
     df = clean()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUT, index=False)
-    print(f"{len(df):,} lignes -> {OUT}")
+    print(f"{len(df):,} rows -> {OUT}")
     print(df.groupby(["sensor", "satellite"]).size())
