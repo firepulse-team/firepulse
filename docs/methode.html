@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
-<link rel="stylesheet" href="site/style.css?v=3">
+<link rel="stylesheet" href="site/style.css?v=4">
 <title>FIREPULSE — Méthode et données</title>
 <meta name="description" content="FIREPULSE raccorde 26 ans de points chauds MODIS et VIIRS (NASA FIRMS) en une seule série pour le Togo. NASA Space Apps Challenge 2026.">
 </head>
@@ -27,7 +27,7 @@
 <section class="wrap proof">
   <div class="card" style="flex:1 1 520px"><h2 data-i18n="prTitle"></h2><p data-i18n="prLead"></p>
     <div class="stats"><div><b data-i18n="pr1v"></b><span data-i18n="pr1t"></span></div><div><b data-i18n="pr2v"></b><span data-i18n="pr2t"></span></div><div><b data-i18n="pr3v"></b><span data-i18n="pr3t"></span></div></div>
-    <div id="valChart"></div><div class="lg" id="valLegend"></div>
+    <div id="valChart" class="chart"></div><div class="lg" id="valLegend"></div><div class="note" id="valNote"></div>
   </div>
   <div class="card" style="flex:1 1 420px"><h2 data-i18n="cmpTitle"></h2><p data-i18n="cmpLead"></p><div class="scroll"><table class="cmp" id="cmpTable"></table></div></div>
 </section>
@@ -37,7 +37,7 @@
 <div id="tip" role="tooltip"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="site/borders.js"></script>
-<script src="site/core.js?v=3"></script>
-<script src="site/site.js?v=3"></script>
+<script src="site/core.js?v=4"></script>
+<script src="site/site.js?v=4"></script>
 </body>
 </html>

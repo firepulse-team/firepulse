@@ -179,9 +179,17 @@ table.cmp tr.best td:first-child{border-left:3px solid var(--accent);padding-lef
 .dl a b{font-weight:600}.dl a code{font:12px var(--mono);color:var(--ink2)}.dl a span{font-size:13px;color:var(--ink2)}
 
 /* graphiques SVG */
-#valChart svg{display:block;max-width:100%;height:auto}
-#valChart text{fill:var(--ink2);font-size:11px;font-family:var(--mono)}
-#valChart .grid{stroke:var(--line);stroke-width:1}
+.chart svg{display:block;max-width:100%;height:auto}
+.chart text{fill:var(--ink2);font-size:11px;font-family:var(--mono)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.chart .axis{stroke:var(--ink3);stroke-width:1}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px}
+.chartcard{padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.chartcard .top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.chartcard h2{font:700 20px var(--display)}
+.field.inline{flex-direction:row;align-items:center;gap:8px}
+.field.inline select{padding:8px 10px}
+.chart [data-label]{cursor:pointer}
 .hit{fill:transparent}.hit:hover{fill:var(--ink);fill-opacity:.06}
 .lg{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--ink2)}
 .lg span{display:inline-flex;align-items:center;gap:6px}

@@ -39,6 +39,10 @@
       p4: '4 · Export', dlMonth: 'Télécharger le CSV de la zone', dlNote: 'Série mensuelle harmonisée. Aussi :', dlWeek: 'série hebdomadaire', dlHot: 'hotspots individuels',
       mapAria: 'Carte', zoomIn: 'Zoom avant', zoomOut: 'Zoom arrière', draw: 'Dessiner une zone', drawing: 'Tracez un rectangle…',
       mapLeg: s => `Hotspots par case de 0,1° · ${s}`, perYr: 'par an', perYrU: 'hotspots/an',
+      yearLbl: 'Année', seasTitle: y => `Saison ${y} face à l’historique`, seasSub: 'Activité par semaine de l’année choisie, comparée à la médiane et aux percentiles de toutes les années.',
+      lgSel: y => `Saison ${y}`, lgMed: 'Médiane', lgBand: 'P25 à P75', lgP90: 'P90', perWeek: 'hotspots / semaine', week: 'Semaine du',
+      annTitle: 'Tendance : harmonisé contre brut', annSub: 'Total par année de feu. Le comptage brut bondit à l’arrivée de VIIRS en 2012 ; la série harmonisée exprime toute la période en équivalent VIIRS.',
+      lgHarm: 'Série harmonisée', lgRaw: 'Comptage brut (MODIS puis VIIRS)', lgTs: t => `Tendance : ${t} par an`, viirsIn: 'Arrivée de VIIRS', few2: 'Pas assez d’années complètes dans cette zone.',
       calTitleZone: z => `Calendrier de brûlage · ${z}`, zoneAll: 'Tout le Togo', zoneRect: 'Rectangle', calHelp: 'Cliquer une case pour voir le mois sur la carte. Hachures : mois sans données ou à venir.',
       // méthode
       mEyebrow: 'Méthode · Validation · Limites · Données', mTitle: 'Comment on raccorde deux satellites.',
@@ -49,7 +53,7 @@
       st4n: 'Étape 4', st4h: 'Passer le relais', st4t: 'S-NPP s’est arrêté le 2 novembre 2026. NOAA-20 continue la série, corrigé d’un ratio de 1,004 mesuré sur 2018–2025.',
       prTitle: 'La preuve, hors échantillon', prLead: 'Chaque année de 2013 à 2025 est estimée par un modèle entraîné sans elle, puis comparée au VIIRS réel.',
       pr1v: '0,995', pr1t: 'corrélation mensuelle', pr2v: '5,0 %', pr2t: 'erreur annuelle moyenne', pr3v: '− 2,8 %', pr3t: 'écart sur le total 2013–2025',
-      vReal: 'VIIRS S-NPP réel', vPred: 'MODIS recalé, hors échantillon', vRaw: 'MODIS brut', vY: 'hotspots / mois, Togo', vAria: 'Série mensuelle estimée contre VIIRS réel, 2013–2025',
+      vReal: 'VIIRS S-NPP réel', vPred: 'MODIS recalé, hors échantillon', vRaw: 'MODIS brut', vY: 'hotspots / mois, Togo', vAria: 'Série mensuelle estimée contre VIIRS réel', vFwd: 'test en avant', vNote: (a, b, e) => `Zone grisée, de ${a} à ${b} : test en avant. Le modèle, entraîné sur 2012–2025, est appliqué à des mois qu’il n’a jamais vus, en données quasi temps réel. Écart sur le total : ${e}. Les trois chiffres ci-dessus portent sur 2013–2025.`,
       cmpTitle: 'Quatre méthodes comparées', cmpLead: 'Erreur mensuelle sur les mois actifs. Plus c’est bas, mieux c’est.', cmpH: ['Méthode', 'Une année retirée', 'Testé sur 2012–2017'],
       cmpRows: ['Ratio global', 'Ratio par mois', 'Ratio par mois + tendance', 'Quantile mapping (retenue)'],
       limTitle: 'Ce que la méthode ne sait pas faire',
@@ -90,6 +94,10 @@
       p4: '4 · Export', dlMonth: 'Download the CSV for this area', dlNote: 'Harmonized monthly series. Also:', dlWeek: 'weekly series', dlHot: 'individual hotspots',
       mapAria: 'Map', zoomIn: 'Zoom in', zoomOut: 'Zoom out', draw: 'Draw an area', drawing: 'Drag a rectangle…',
       mapLeg: s => `Hotspots per 0.1° cell · ${s}`, perYr: 'per year', perYrU: 'hotspots/yr',
+      yearLbl: 'Year', seasTitle: y => `Season ${y} against the record`, seasSub: 'Weekly activity of the chosen year, compared with the median and percentiles of all years.',
+      lgSel: y => `Season ${y}`, lgMed: 'Median', lgBand: 'P25 to P75', lgP90: 'P90', perWeek: 'hotspots / week', week: 'Week of',
+      annTitle: 'Trend: harmonized against raw', annSub: 'Total per fire year. The raw count jumps when VIIRS arrives in 2012; the harmonized series expresses the whole period in VIIRS equivalent.',
+      lgHarm: 'Harmonized series', lgRaw: 'Raw count (MODIS then VIIRS)', lgTs: t => `Trend: ${t} per year`, viirsIn: 'VIIRS arrives', few2: 'Not enough complete years in this area.',
       calTitleZone: z => `Burning calendar · ${z}`, zoneAll: 'All of Togo', zoneRect: 'Rectangle', calHelp: 'Click a cell to see that month on the map. Hatching: months with no data or still to come.',
       mEyebrow: 'Method · Validation · Limits · Data', mTitle: 'How we join two satellites.',
       mLead: 'MODIS has observed since 2000 at 1 km resolution, VIIRS since 2012 at 375 m. We learn the relation between the two over their common years, then apply it to the past.',
@@ -99,7 +107,7 @@
       st4n: 'Step 4', st4h: 'Hand over', st4t: 'S-NPP stopped on 2 November 2026. NOAA-20 continues the record, corrected by a ratio of 1.004 measured over 2018–2025.',
       prTitle: 'The proof, out of sample', prLead: 'Each year from 2013 to 2025 is estimated by a model trained without it, then compared with the real VIIRS.',
       pr1v: '0.995', pr1t: 'monthly correlation', pr2v: '5.0%', pr2t: 'mean yearly error', pr3v: '− 2.8%', pr3t: 'gap on the 2013–2025 total',
-      vReal: 'Real VIIRS S-NPP', vPred: 'Calibrated MODIS, out of sample', vRaw: 'Raw MODIS', vY: 'hotspots / month, Togo', vAria: 'Estimated monthly series against real VIIRS, 2013–2025',
+      vReal: 'Real VIIRS S-NPP', vPred: 'Calibrated MODIS, out of sample', vRaw: 'Raw MODIS', vY: 'hotspots / month, Togo', vAria: 'Estimated monthly series against real VIIRS', vFwd: 'forward test', vNote: (a, b, e) => `Shaded area, ${a} to ${b}: forward test. The model, trained on 2012–2025, is applied to months it never saw, in near-real-time data. Gap on the total: ${e}. The three figures above cover 2013–2025.`,
       cmpTitle: 'Four methods compared', cmpLead: 'Monthly error on active months. Lower is better.', cmpH: ['Method', 'Leave one year out', 'Tested on 2012–2017'],
       cmpRows: ['Global ratio', 'Ratio per month', 'Ratio per month + trend', 'Quantile mapping (chosen)'],
       limTitle: 'What the method cannot do',
@@ -225,7 +233,7 @@
 
   /* ---------- Explorer ---------- */
   function explorer() {
-    const S = { type: 'all', box: D.bbox, region: REGIONS[0][0], mode: 'act', month: 0, pick: -1, agg: null, mon: null, fys: null };
+    const S = { type: 'all', box: D.bbox, region: REGIONS[0][0], mode: 'act', month: 0, pick: -1, agg: null, mon: null, fys: null, cal: null, year: '' };
     const mp = makeMap(true), map = mp.map; let drawing = false, d0 = null, dRect = null;
     document.documentElement.style.setProperty('--ch', '17px');
     $('regionSel').innerHTML = REGIONS.map(r => `<option>${r[0]}</option>`).join('');
@@ -233,7 +241,8 @@
     function zoneName() { return S.type === 'all' ? T.zoneAll : S.type === 'region' ? S.region : `${T.zoneRect} ${S.box[0]}–${S.box[1]}°N, ${S.box[2]}–${S.box[3]}°E`; }
     function setZone(box, fit) {
       const agg = FP.aggregate(D, box); if (!agg.total) { $('zoneMsg').textContent = T.emptyBox; return false; }
-      S.box = box; S.agg = agg; S.mon = FP.monthly(D, agg); S.fys = FP.fireYears(S.mon); $('zoneMsg').textContent = S.type === 'rect' ? T.rectHint : '';
+      S.box = box; S.agg = agg; S.mon = FP.monthly(D, agg); S.fys = FP.fireYears(S.mon); S.cal = FP.calendar(agg);
+      const cy = S.cal.years.filter(y => y.n > 0), cd = cy.filter(y => y.complete); if (!cy.some(y => y.label === S.year)) S.year = (cd.length ? cd[cd.length - 1] : cy[cy.length - 1]).label; $('zoneMsg').textContent = S.type === 'rect' ? T.rectHint : '';
       if (fit) mp.fit(S.type === 'all' ? D.bbox : box, 40);
       draw(); return true;
     }
@@ -267,7 +276,44 @@
       $('monthSel').innerHTML = o; $('monthSel').value = S.pick >= 0 ? 'p' : String(S.month);
       $('drawTxt').textContent = drawing ? T.drawing : T.draw; $('drawBtn').classList.toggle('on', drawing);
     }
-    function draw() { drawControls(); drawMap(); drawSit(); drawCal(); }
+    function ticks(fy) { const c = S.cal, out = []; let last = -1; for (let p = 0; p < FP.W; p++) { const m = FP.dateOf(FP.posToDay(c, fy, p) + 3).getUTCMonth(); if (m !== last) { out.push([p, m]); last = m; } } return out.filter((t, i) => i === out.length - 1 ? FP.W - t[0] >= 2 : out[i + 1][0] - t[0] >= 3); }
+    function drawSeason() {
+      const c = S.cal, W = FP.W, yrs = c.years.filter(y => y.n > 0), y = yrs.find(x => x.label === S.year), row = c.mat[y.row];
+      $('yearSel').innerHTML = yrs.map(x => `<option>${x.label}</option>`).join(''); $('yearSel').value = S.year; $('seasTitle').textContent = T.seasTitle(y.label);
+      const wd = 560, ht = 270, Lm = 50, R = 10, Tm = 10, B = 40, pw = wd - Lm - R, ph = ht - Tm - B;
+      let mx = 0; for (let p = 0; p < W; p++) mx = Math.max(mx, c.clim.p90[p] || 0, row[p] || 0); mx = niceMax(mx);
+      const X = p => Lm + (p + 0.5) * pw / W, Y = v => Tm + ph - v / mx * ph, wk = (fy, p) => { const d = FP.dateOf(FP.posToDay(c, fy, p)); return `${d.getUTCDate()} ${T.months[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+      const path = a => { let d = '', pen = false; for (let p = 0; p < W; p++) { const v = a[p]; if (v == null || isNaN(v)) { pen = false; continue; } d += (pen ? 'L' : 'M') + X(p).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; } return d; };
+      let band = ''; for (let p = 0; p < W; p++) band += (p ? 'L' : 'M') + X(p).toFixed(1) + ' ' + Y(c.clim.p75[p] || 0).toFixed(1); for (let p = W - 1; p >= 0; p--) band += 'L' + X(p).toFixed(1) + ' ' + Y(c.clim.p25[p] || 0).toFixed(1);
+      let s = `<svg viewBox="0 0 ${wd} ${ht}" role="img" aria-label="${esc(T.seasTitle(y.label))}">`;
+      for (let k = 0; k <= 4; k++) { const v = mx * k / 4; s += `<line class="grid" x1="${Lm}" x2="${wd - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${Lm - 6}" y="${Y(v) + 4}" text-anchor="end">${num(v)}</text>`; }
+      for (const [p, m] of ticks(y.fy)) s += `<text x="${Lm + p * pw / W + 1}" y="${ht - 20}">${T.months[m]}</text>`;
+      s += `<text x="${Lm}" y="${ht - 4}">${T.perWeek}</text><path d="${band}Z" fill="#5A6B63" opacity=".2"/><path d="${path(c.clim.p90)}" fill="none" stroke="#5A6B63" stroke-width="1" stroke-dasharray="2 3"/><path d="${path(c.clim.med)}" fill="none" stroke="#12261F" stroke-width="1.5"/><path d="${path(row)}" fill="none" stroke="#C2410C" stroke-width="2.5" stroke-linejoin="round"/>`;
+      for (let p = 0; p < W; p++) { const v = row[p]; s += `<rect class="hit" x="${Lm + p * pw / W}" y="${Tm}" width="${pw / W}" height="${ph}" data-tip="${esc(`<b>${T.week} ${wk(y.fy, p)}</b>` + (isNaN(v) ? '' : `<br>${y.label} : <b>${num(v)}</b> ${T.hs}`) + `<br>${T.median} : ${num(c.clim.med[p])}<br>P25–P75 : ${num(c.clim.p25[p])} – ${num(c.clim.p75[p])}<br>P90 : ${num(c.clim.p90[p])}`)}"/>`; }
+      $('seas').innerHTML = s + '</svg>';
+      $('seasLg').innerHTML = `<span><i style="background:#C2410C"></i>${T.lgSel(y.label)}</span><span><i style="background:#12261F"></i>${T.lgMed}</span><span><i style="background:#5A6B63;opacity:.35;height:10px"></i>${T.lgBand}</span><span><i style="background:repeating-linear-gradient(90deg,#5A6B63 0 2px,transparent 2px 5px)"></i>${T.lgP90}</span>`;
+    }
+    function drawTrend() {
+      const f = S.fys, ys = f.done, wd = 560, ht = 270, Lm = 50, R = 14, Tm = 16, B = 28, pw = wd - Lm - R, ph = ht - Tm - B;
+      if (ys.length < 2) { $('ann').innerHTML = `<p class="note">${T.few2}</p>`; $('annLg').innerHTML = ''; return; }
+      const mx = niceMax(Math.max(...ys.map(y => Math.max(y.total, y.raw)))), X = i => Lm + (i + 0.5) * pw / ys.length, Y = v => Tm + ph - Math.max(0, Math.min(mx, v)) / mx * ph;
+      const line = g => 'M' + ys.map((y, i) => X(i).toFixed(1) + ' ' + Y(g(y)).toFixed(1)).join('L');
+      let s = `<svg viewBox="0 0 ${wd} ${ht}" role="img" aria-label="${esc(T.annTitle)}">`;
+      for (let k = 0; k <= 4; k++) { const v = mx * k / 4; s += `<line class="grid" x1="${Lm}" x2="${wd - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${Lm - 6}" y="${Y(v) + 4}" text-anchor="end">${num(v)}</text>`; }
+      const iv = ys.findIndex(y => y.src === 'S' || y.src === 'J');
+      if (iv > 0) { const x = (X(iv - 1) + X(iv)) / 2; s += `<line class="axis" x1="${x}" x2="${x}" y1="${Tm}" y2="${Tm + ph}" stroke-dasharray="4 3"/><text x="${x + 5}" y="${Tm + 9}">${T.viirsIn} →</text>`; }
+      ys.forEach((y, i) => { if (i % Math.ceil(ys.length / 8) === 0) s += `<text x="${X(i)}" y="${ht - 8}" text-anchor="middle">${y.label}</text>`; });
+      s += `<path d="${line(y => y.raw)}" fill="none" stroke="#1D5FA8" stroke-width="2" stroke-dasharray="5 4"/>`;
+      if (f.trend) s += `<path d="M${X(0)} ${Y(f.trend.intercept + f.trend.slope * ys[0].fy)}L${X(ys.length - 1)} ${Y(f.trend.intercept + f.trend.slope * ys[ys.length - 1].fy)}" stroke="#12261F" stroke-width="1.5" stroke-dasharray="2 3" fill="none"/>`;
+      s += `<path d="${line(y => y.total)}" fill="none" stroke="#C2410C" stroke-width="2.5" stroke-linejoin="round"/>`;
+      ys.forEach((y, i) => { s += `<rect x="${X(i) - 3}" y="${Y(y.raw) - 3}" width="6" height="6" fill="#1D5FA8" stroke="#fff" stroke-width="1.5"/><circle cx="${X(i)}" cy="${Y(y.total)}" r="${y.label === S.year ? 5.5 : 4}" fill="#C2410C" stroke="#fff" stroke-width="2"/>`; });
+      ys.forEach((y, i) => { s += `<rect class="hit" data-label="${y.label}" x="${Lm + i * pw / ys.length}" y="${Tm}" width="${pw / ys.length}" height="${ph}" data-tip="${esc(`<b>${y.label}</b><br>${T.lgHarm} : <b>${num(y.total)}</b><br>${T.lgRaw} : ${num(y.raw)}`)}"/>`; });
+      $('ann').innerHTML = s + '</svg>';
+      const tp = f.trend ? (f.trend.pct > 0 ? '+' : '−') + pct(Math.abs(f.trend.pct), 1) : '';
+      $('annLg').innerHTML = `<span><i style="background:#C2410C"></i>${T.lgHarm}</span><span><i style="background:repeating-linear-gradient(90deg,#1D5FA8 0 5px,transparent 5px 9px)"></i>${T.lgRaw}</span>` + (f.trend ? `<span><i style="background:repeating-linear-gradient(90deg,#12261F 0 2px,transparent 2px 5px)"></i>${T.lgTs(tp)}</span>` : '');
+    }
+    function drawCharts() { drawSeason(); drawTrend(); }
+    function draw() { drawControls(); drawMap(); drawSit(); drawCal(); drawCharts(); }
     function endDraw() { drawing = false; d0 = null; if (dRect) { map.removeLayer(dRect); dRect = null; } map.dragging.enable(); $('mapBox').classList.remove('drawing'); drawControls(); }
 
     $('zoneSeg').onclick = e => {
@@ -284,7 +330,14 @@
     }));
     $('modeSeg').onclick = e => { const b = e.target.closest('button'); if (!b) return; S.mode = b.dataset.mode; drawControls(); drawCal(); };
     $('monthSel').onchange = e => { if (e.target.value === 'p') return; S.pick = -1; S.month = +e.target.value; draw(); };
-    const pickCell = e => { const el = e.target.closest('[data-mi]'); if (!el) return; const mi = +el.dataset.mi; S.pick = S.pick === mi ? -1 : mi; draw(); };
+    const pickCell = e => {
+      const el = e.target.closest('[data-mi]'); if (!el) return; const mi = +el.dataset.mi; S.pick = S.pick === mi ? -1 : mi;
+      const m = mi % 12, y = FP.Y0 + Math.floor(mi / 12), fy = m >= S.fys.start ? y : y - 1, lab = S.fys.start > 0 ? fy + '/' + String((fy + 1) % 100).padStart(2, '0') : String(fy);
+      if (S.cal.years.some(x => x.label === lab && x.n > 0)) S.year = lab;      // la courbe de saison suit l'année cliquée
+      draw();
+    };
+    $('yearSel').onchange = e => { S.year = e.target.value; drawCharts(); };
+    $('ann').addEventListener('click', e => { const el = e.target.closest('[data-label]'); if (el && S.cal.years.some(x => x.label === el.dataset.label && x.n > 0)) { S.year = el.dataset.label; drawCharts(); } });
     $('calGrid').addEventListener('click', pickCell);
     $('calGrid').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickCell(e); } });
     $('zIn').onclick = () => map.zoomIn(); $('zOut').onclick = () => map.zoomOut();
@@ -319,11 +372,14 @@
       const X = i => Lm + (i + 0.5) * pw / n, Y = v => Tm + ph - v / mx * ph, path = a => a.map((v, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1)).join('');
       let s = `<svg viewBox="0 0 ${wd} ${ht}" role="img" aria-label="${esc(T.vAria)}">`;
       for (let k = 0; k <= 4; k++) { const v = mx * k / 4; s += `<line class="grid" x1="${Lm}" x2="${wd - R}" y1="${Y(v)}" y2="${Y(v)}"/><text x="${Lm - 6}" y="${Y(v) + 4}" text-anchor="end">${num(v)}</text>`; }
+      const fi = V.forward_from ? V.month.indexOf(V.forward_from) : -1;
+      if (fi > 0) { const x = Lm + fi * pw / n; s += `<rect x="${x}" y="${Tm}" width="${wd - R - x}" height="${ph}" fill="#5A6B63" opacity=".12"/><text x="${wd - R - 3}" y="${Tm + 11}" text-anchor="end">${T.vFwd}</text>`; }
       V.month.forEach((m, i) => { if (m.slice(5) === '01' && (+m.slice(0, 4)) % 2 === 1) s += `<text x="${X(i) - 3}" y="${ht - 16}">${m.slice(0, 4)}</text>`; });
       s += `<text x="${Lm}" y="${ht - 2}">${T.vY}</text>`;
       s += `<path d="${path(V.modis)}" fill="none" stroke="#1D5FA8" stroke-width="1.3"/><path d="${path(V.viirs)}" fill="none" stroke="#12261F" stroke-width="2" stroke-linejoin="round"/><path d="${path(V.pred)}" fill="none" stroke="#C2410C" stroke-width="1.8" stroke-dasharray="5 3" stroke-linejoin="round"/>`;
       V.month.forEach((m, i) => { s += `<rect class="hit" x="${Lm + i * pw / n}" y="${Tm}" width="${pw / n}" height="${ph}" data-tip="${esc(`<b>${T.months[+m.slice(5) - 1]} ${m.slice(0, 4)}</b><br>${T.vReal} : <b>${num(V.viirs[i])}</b><br>${T.vPred} : <b>${num(V.pred[i])}</b><br>${T.vRaw} : ${num(V.modis[i])}`)}"/>`; });
       $('valChart').innerHTML = s + '</svg>';
+      if (fi > 0) { let a = 0, b = 0; for (let i = fi; i < n; i++) { a += V.viirs[i]; b += V.pred[i]; } const e = 100 * (b / a - 1), mm = k => `${T.monthsLong[+V.month[k].slice(5) - 1]} ${V.month[k].slice(0, 4)}`; $('valNote').textContent = T.vNote(mm(fi), mm(n - 1), (e > 0 ? '+' : '−') + pct(Math.abs(e), 1)); }
       $('valLegend').innerHTML = `<span><i style="background:#12261F"></i>${T.vReal}</span><span><i style="background:repeating-linear-gradient(90deg,#C2410C 0 5px,transparent 5px 8px)"></i>${T.vPred}</span><span><i style="background:#1D5FA8"></i>${T.vRaw}</span>`;
     }
     function draw() {

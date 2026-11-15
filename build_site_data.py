@@ -71,17 +71,36 @@ def build() -> dict:
 
 
 def build_validation() -> dict | None:
-    """Série nationale de la validation hors échantillon (validate.py), pour le graphique de la page Méthode.
+    """Série nationale de la validation, pour le graphique de la page Méthode.
 
+    2013-2025 : hors échantillon, une année retirée à la fois (validate.loyo_predictions).
+    Mois suivants, tant que S-NPP observe : test en avant, modèle entraîné sur toute la période de
+    calibration (jusqu'à 2025-12) et appliqué à des mois qu'il n'a jamais vus (données quasi temps réel).
     Demande data/processed/monthly_grid.csv (aggregate_grid.py). Renvoie None si le fichier manque.
     """
-    if not (ROOT / "data/processed/monthly_grid.csv").exists():
+    src = ROOT / "data/processed/monthly_grid.csv"
+    if not src.exists():
         return None
+    from calibrate import fit_quantile_mapping, load
     from validate import loyo_predictions
-    nat = loyo_predictions().groupby("month")[["modis", "viirs", "pred"]].sum().sort_index()
+    cols = ["modis", "viirs", "pred"]
+    nat = loyo_predictions().groupby("month")[cols].sum().sort_index()
+    train = load()
+    g = pd.read_csv(src)
+    g["modis"], g["viirs"] = g["n_aqua"] + g["n_terra"], g["n_snpp"]
+    g["year"], g["m"] = g["month"].str[:4].astype(int), g["month"].str[5:7].astype(int)
+    fwd = g[(g["month"] > train["month"].max()) & (g["month"] < NOAA20_FROM)].copy()
+    forward_from = None
+    if len(fwd):
+        fwd["pred"] = fit_quantile_mapping(train)(fwd)
+        f = fwd.groupby("month")[cols].sum().sort_index()
+        forward_from = f.index[0]
+        print(f"test en avant {f.index[0]} -> {f.index[-1]} : réel {f.viirs.sum():.0f}, estimé {f.pred.sum():.0f} ({100 * (f.pred.sum() / f.viirs.sum() - 1):+.1f} %)")
+        nat = pd.concat([nat, f])
+    loyo = nat[nat.index < (forward_from or "9999")]
     return {"format": "firepulse-validation-v1", "month": nat.index.tolist(), "viirs": nat["viirs"].round(0).astype(int).tolist(),
             "pred": nat["pred"].round(1).tolist(), "modis": nat["modis"].round(0).astype(int).tolist(),
-            "r": round(float(nat["pred"].corr(nat["viirs"])), 3)}
+            "r": round(float(loyo["pred"].corr(loyo["viirs"])), 3), "forward_from": forward_from}
 
 
 if __name__ == "__main__":
