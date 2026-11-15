@@ -65,17 +65,25 @@ Les anomalies viennent de `anomalies.py` (médiane 2001-2025), donc l'app et le 
 
 ## Site web (GitHub Pages)
 
-Une page publique, sans installation, pour le jury : `docs/index.html`.
+Le site public du projet, sans installation : https://firepulse-team.github.io/firepulse/
 
-- Mêmes chiffres que le pipeline et que l'app Streamlit : le site lit `docs/site/firepulse.json`, fabriqué à partir de la série harmonisée.
-- Calendrier **par semaine** (chaque total mensuel harmonisé est réparti sur ses jours au prorata des hotspots du capteur source, comme `anomalies.month_to_date`).
-- Carte avec zone à dessiner, situation du mois en cours, saison face à l'historique, tendance harmonisée contre brut, preuve de la validation, méthode et limites, export CSV. Français et anglais, thème clair et sombre.
+Trois pages, d'après la maquette de l'équipe, en français et en anglais :
+
+| Page | Fichier | Contenu |
+|---|---|---|
+| Accueil | `docs/index.html` | Carte du Togo, situation du mois en cours, les trois chiffres clés, calendrier de brûlage |
+| Explorer | `docs/explorer.html` | Zone d'intérêt (tout le Togo, région, rectangle saisi ou dessiné), carte par mois, calendrier en activité ou en anomalies, situation de la zone, export CSV |
+| Méthode et données | `docs/methode.html` | Les quatre étapes, la validation hors échantillon (graphique et chiffres), les quatre méthodes comparées, les limites, les fichiers à télécharger |
+
+Le site ne refait aucun calcul d'harmonisation : il lit `docs/site/firepulse.json` (série harmonisée répartie par jour, même règle que `anomalies.month_to_date`) et `docs/site/validation.json` (série de `validate.py`). Les totaux affichés sont donc ceux du pipeline.
 
 Mettre à jour les données du site après un nouveau passage du pipeline :
 
 ```bash
-python build_site_data.py        # écrit docs/site/firepulse.json
+python build_site_data.py        # écrit docs/site/firepulse.json et docs/site/validation.json
 ```
+
+`validation.json` n'est régénéré que si `data/processed/monthly_grid.csv` existe (`aggregate_grid.py`).
 
 Voir le site en local :
 
@@ -83,9 +91,7 @@ Voir le site en local :
 cd docs && python -m http.server 8000     # puis ouvrir http://localhost:8000
 ```
 
-Publier : dans GitHub, **Settings → Pages → Build and deployment → Deploy from a branch**, branche `main`, dossier `/docs`. Le site sera à l'adresse https://firepulse-team.github.io/firepulse/ (dépôt public requis avec un compte gratuit).
-
-Fichiers : `docs/index.html`, `docs/site/` (`core.js` calculs, `app.js` interface, `style.css`, `borders.js` frontières Natural Earth).
+Fichiers : `docs/site/style.css` (styles), `site.js` (interface des trois pages), `core.js` (calculs), `borders.js` (frontières Natural Earth). La carte n'utilise aucun fond de carte externe.
 
 ## Données
 
