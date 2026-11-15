@@ -91,6 +91,8 @@ Voir le site en local :
 cd docs && python -m http.server 8000     # puis ouvrir http://localhost:8000
 ```
 
+Logo (fond transparent) : `docs/site/logo.svg` et `logo.png` pour les fonds clairs, `logo-on-dark.svg` pour les fonds sombres, `logo-mark.svg` pour la flamme seule, `favicon.svg` pour l'onglet. Le mot est en tracés (Space Grotesk Bold, licence OFL), donc le logo s'affiche pareil partout.
+
 Fichiers : `docs/site/style.css` (styles), `site.js` (interface des trois pages), `core.js` (calculs), `borders.js` (frontières Natural Earth). La carte n'utilise aucun fond de carte externe.
 
 ## Données
