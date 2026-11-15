@@ -1,99 +1,70 @@
-﻿# FIREPULSE
+﻿<p align="center"><img src="docs/site/logo.png" alt="FIREPULSE" width="320"></p>
 
-NASA Space Apps Challenge 2026 (Lomé) — défi **Harmonization of MODIS and VIIRS Hot Spots**.
+# FIREPULSE
 
-L'objectif : construire une série temporelle cohérente des feux actifs MODIS (2000+) et VIIRS (2012+), puis la rendre explorable dans une web app (calendrier années × mois, anomalies vs médiane historique, export CSV).
+**26 ans de feux vus de l'espace, en une seule série cohérente.**
 
-## Démarrage
+Projet de l'équipe FIREPULSE pour le [NASA Space Apps Challenge 2026](https://www.spaceappschallenge.org/2026/) (Lomé, Togo), défi [Harmonization of MODIS and VIIRS Hot Spots](https://www.spaceappschallenge.org/2026/challenges/modis-and-viirs-hot-spots/).
 
-```bash
-git clone https://github.com/firepulse-team/firepulse.git
-cd firepulse
-python download_firms.py
-```
+**Site public : https://firepulse-team.github.io/firepulse/**
 
-Les données sont téléchargées dans `data/raw/<capteur>/` (non versionnées, ~90 Mo pour le Togo).
+## Le problème
 
-Autres pays :
+Les feux actifs sont suivis par satellite depuis 2000, mais par deux familles de capteurs qui ne comptent pas de la même façon. MODIS (1 km, depuis 2000) arrive en fin de vie. VIIRS (375 m, depuis 2012) le remplace et détecte quatre à cinq fois plus de feux sur le Togo. Mises bout à bout, les deux séries inventent une hausse en 2012. En ne gardant que VIIRS, on perd douze ans d'historique.
 
-```bash
-python download_firms.py --pays Togo Benin Ghana Burkina_Faso
-```
+## Ce que fait FIREPULSE
 
-## Travailler en équipe (Git)
+1. **Harmonisation.** MODIS est recalé sur VIIRS par quantile mapping, sur une grille de 0,1° par mois. La série va de 2000 au mois en cours, quel que soit le capteur d'origine.
+2. **Exploration.** L'utilisateur choisit une zone (dessin sur la carte ou coordonnées) et voit le calendrier de brûlage, les anomalies par rapport à la médiane 2001–2025 et la situation du mois en cours. Il peut télécharger les données en CSV.
 
-Une branche par personne ou par tâche, puis fusion dans `main` via pull request. Ne jamais faire `git push --force`.
+| Résultat | Valeur |
+|---|---|
+| Corrélation mensuelle avec le VIIRS réel, hors échantillon | 0,995 |
+| Erreur annuelle moyenne, hors échantillon | 5,0 % |
+| Tendance des feux au Togo depuis 2001, une fois les capteurs raccordés | − 2,6 % par an |
 
-```bash
-git clone https://github.com/firepulse-team/firepulse.git   # une seule fois
-git checkout main && git pull                                 # récupérer le travail des autres
-git checkout -b prenom/ma-tache                               # ex. achille/webapp
-# ... travailler, puis :
-git add fichier1 fichier2
-git commit -m "Message clair"
-git push -u origin prenom/ma-tache                            # première fois ; ensuite : git push
-```
+La méthode, sa validation et ses limites sont décrites dans [`docs/METHODE.md`](docs/METHODE.md).
 
-Puis ouvrir une pull request sur GitHub (bouton « Compare & pull request ») et la fusionner dans `main`.
-Avant de recommencer une tâche : `git checkout main && git pull`.
+## Démarrage rapide
 
-Pipeline : `python download_firms.py` → `python download_2026.py` (clé FIRMS dans `.env`) → `python clean_data.py` → `python aggregate_grid.py` → `python harmonize.py` → `python anomalies.py` (écrit dans `data/processed/`, non versionné).
-**Pour développer la web app sans rien recalculer** : les résultats prêts à l'emploi sont dans `data_public/` (série harmonisée, anomalies du Togo, hotspots nettoyés en `.csv.gz` lisible directement par pandas). `pip install -r requirements.txt` suffit.
-Le format de la série harmonisée est décrit dans `docs/FORMAT.md` ; un échantillon factice est dans `sample/`.
-
-## Web app
+Il faut Python 3.10 ou plus récent. Les résultats sont déjà dans `data_public/`, donc il n'y a rien à télécharger ni à recalculer.
 
 ```bash
 git clone https://github.com/firepulse-team/firepulse.git
 cd firepulse
-python3 -m venv .venv && source .venv/bin/activate    # Windows : .venv\Scripts\activate
+python -m venv .venv && source .venv/bin/activate    # Windows : .venv\Scripts\activate
 pip install -r requirements.txt
-streamlit run app.py                                  # ouvre http://localhost:8501
+streamlit run app.py                                 # ouvre http://localhost:8501
 ```
 
-Rien à télécharger ni à recalculer : l'app lit la série de `data_public/`. Si le pipeline a tourné, elle prend `data/processed/` à la place ; sans aucune série réelle, elle affiche l'échantillon factice de `sample/` avec un avertissement.
+## Deux interfaces
 
-- **Zone d'intérêt** : toute l'étendue, une région (bandes de latitude approximatives), un rectangle réglé aux curseurs ou dessiné sur la carte.
-- **Calendrier** : années × mois, en activité ou en anomalies.
-- **Saison** : l'année choisie face à la médiane, P25–P75 et P90.
-- **Tendance** : total annuel harmonisé contre comptage brut, pente de Theil–Sen et test de Mann–Kendall.
-- **Périodes critiques** : mois dont la médiane dépasse 50 % du pic, et mois les plus inhabituels.
-- **Export CSV** : série mensuelle de la zone, calendrier type, hotspots individuels.
-- **Mois en cours** : comparé à la même fenêtre de jours des années passées (`anomalies.month_to_date`).
+Les deux lisent la même série harmonisée et affichent donc les mêmes chiffres que le pipeline.
 
-Les anomalies viennent de `anomalies.py` (médiane 2001-2025), donc l'app et le pipeline affichent les mêmes chiffres. `firecal.py` ajoute l'année de feu (octobre à septembre pour le Togo, pour ne pas couper la saison au 1er janvier), les niveaux calme / actif / critique et la tendance. Interface en français et en anglais.
+### Site public (GitHub Pages)
 
-## Site web (GitHub Pages)
-
-Le site public du projet, sans installation : https://firepulse-team.github.io/firepulse/
-
-Trois pages, d'après la maquette de l'équipe, en français et en anglais :
+Sans installation, en français et en anglais : https://firepulse-team.github.io/firepulse/
 
 | Page | Fichier | Contenu |
 |---|---|---|
-| Accueil | `docs/index.html` | Carte du Togo, situation du mois en cours, les trois chiffres clés, calendrier de brûlage |
-| Explorer | `docs/explorer.html` | Zone d'intérêt (tout le Togo, région, rectangle saisi ou dessiné), carte par mois, calendrier en activité ou en anomalies, situation de la zone, saison d'une année face à l'historique, tendance harmonisée contre brut, export CSV |
-| Méthode et données | `docs/methode.html` | Les quatre étapes, la validation hors échantillon (graphique et chiffres), les quatre méthodes comparées, les limites, les fichiers à télécharger |
+| Accueil | `docs/index.html` | Carte du Togo, situation du mois en cours, chiffres clés, calendrier de brûlage |
+| Explorer | `docs/explorer.html` | Zone d'intérêt (tout le Togo, région, rectangle saisi ou dessiné), carte par mois, calendrier en activité ou en anomalies, saison face à l'historique, tendance, export CSV |
+| Méthode et données | `docs/methode.html` | Étapes de la méthode, validation hors échantillon, méthodes comparées, limites, fichiers à télécharger |
 
-Le site ne refait aucun calcul d'harmonisation : il lit `docs/site/firepulse.json` (série harmonisée répartie par jour, même règle que `anomalies.month_to_date`) et `docs/site/validation.json` (série de `validate.py`). Les totaux affichés sont donc ceux du pipeline.
+Pour le voir en local : `cd docs && python -m http.server 8000`, puis ouvrir http://localhost:8000.
 
-Mettre à jour les données du site après un nouveau passage du pipeline :
+### Application Streamlit
 
-```bash
-python build_site_data.py        # écrit docs/site/firepulse.json et docs/site/validation.json
-```
+`streamlit run app.py`, en français et en anglais.
 
-`validation.json` n'est régénéré que si `data/processed/monthly_grid.csv` existe (`aggregate_grid.py`). Il contient la validation hors échantillon 2013-2025 de `validate.py`, suivie d'un test en avant sur les mois de 2026 où S-NPP observe encore (modèle entraîné jusqu'à 2025-12).
+- **Zone d'intérêt** : tout le pays, une région, un rectangle réglé aux curseurs ou dessiné sur la carte.
+- **Calendrier** : années × mois, en activité ou en anomalies.
+- **Saison** : l'année choisie face à la médiane et aux percentiles historiques.
+- **Tendance** : total annuel harmonisé contre comptage brut (pente de Theil–Sen, test de Mann–Kendall).
+- **Mois en cours** : comparé aux mêmes jours des années passées.
+- **Export CSV** : série mensuelle de la zone, calendrier type, hotspots individuels.
 
-Voir le site en local :
-
-```bash
-cd docs && python -m http.server 8000     # puis ouvrir http://localhost:8000
-```
-
-Logo (fond transparent) : `docs/site/logo.svg` et `logo.png` pour les fonds clairs, `logo-on-dark.svg` pour les fonds sombres, `logo-mark.svg` pour la flamme seule, `favicon.svg` pour l'onglet. Le mot est en tracés (Space Grotesk Bold, licence OFL), donc le logo s'affiche pareil partout.
-
-Fichiers : `docs/site/style.css` (styles), `site.js` (interface des trois pages), `core.js` (calculs), `borders.js` (frontières Natural Earth). La carte n'utilise aucun fond de carte externe.
+L'application lit `data/processed/` si le pipeline a tourné, sinon `data_public/`, sinon l'échantillon factice de `sample/` (avec un avertissement).
 
 ## Usage de l'IA
 
@@ -101,40 +72,80 @@ Le règlement Space Apps demande d'indiquer où l'IA a servi. Le site (`docs/`),
 
 ## Données
 
-Source : [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/) — archives CSV par pays et par année.
+Source : [NASA FIRMS](https://firms.modaps.eosdis.nasa.gov/). Archives par pays pour 2000–2025, puis API FIRMS pour 2026.
 
-| Capteur | Années | Résolution |
+| Capteur | Période | Résolution |
 |---|---|---|
-| `modis` (Terra + Aqua) | 2000–2025 | 1 km |
-| `viirs-snpp` | 2012–2025 | 375 m |
-| `viirs-jpss1` (NOAA-20) | 2018–2025 | 375 m |
+| MODIS (Terra + Aqua) | depuis 2000 | 1 km |
+| VIIRS S-NPP | 2012 → 2 novembre 2026 (arrêt des livraisons) | 375 m |
+| VIIRS NOAA-20 | depuis 2018 | 375 m |
 
-Points d'attention :
-- `confidence` est numérique (0–100) pour MODIS mais en lettres (l/n/h) pour VIIRS : à normaliser.
-- La colonne `type` permet d'exclure les sources statiques (torchères, industrie).
-- Les archives s'arrêtent fin 2025. Pour 2026, il faudra l'API FIRMS avec une MAP_KEY gratuite, à stocker dans un fichier `.env` (ignoré par git, ne jamais la committer).
+Fichiers prêts à l'emploi dans `data_public/` :
 
-Data: NASA FIRMS (MODIS / VIIRS 375 m).
+| Fichier | Contenu |
+|---|---|
+| `harmonized_monthly.csv` | Série harmonisée par case de 0,1° et par mois (format : [`docs/FORMAT.md`](docs/FORMAT.md)) |
+| `anomalies_togo_monthly.csv` | Médiane, ratio et percentile par mois pour le Togo |
+| `hotspots_clean.csv.gz` | 1,06 million de hotspots filtrés, lisible directement par pandas |
 
-## Plan
+## Reproduire le pipeline
 
-1. **Harmonisation** : agrégation mensuelle sur grille 0,1°, calibration MODIS → VIIRS sur le chevauchement 2012–2025 (ratio, régression ou quantile mapping), validation.
-2. **Web app** : Streamlit + folium + Plotly, données précalculées.
+Les données brutes et intermédiaires vont dans `data/`, qui n'est pas versionné (environ 90 Mo pour le Togo).
 
-## Avancement
+| Étape | Commande | Rôle |
+|---|---|---|
+| 1 | `python download_firms.py` | Télécharge les archives 2000–2025. Autres pays : `--pays Togo Benin Ghana` |
+| 2 | `python download_2026.py` | Télécharge 2026 par l'API FIRMS (clé requise, voir ci-dessous) |
+| 3 | `python clean_data.py` | Filtre par type et par confiance, unifie les colonnes |
+| 4 | `python aggregate_grid.py` | Compte les hotspots par mois et par case de 0,1° |
+| 5 | `python harmonize.py` | Calibre MODIS sur VIIRS et écrit la série harmonisée |
+| 6 | `python anomalies.py` | Calcule les anomalies par rapport à la médiane 2001–2025 |
+| 7 | `python validate.py` | Validation hors échantillon, figures et métriques dans `docs/` |
+| 8 | `python build_site_data.py` | Met à jour les données du site (`docs/site/*.json`) |
 
-- [x] Script de téléchargement (archives + API 2026)
-- [x] Nettoyage, grille mensuelle, calibration MODIS → VIIRS (quantile mapping), série harmonisée
-- [x] Anomalies vs médiane (`anomalies.py`)
-- [x] Validation pour le jury (`validate.py`, `docs/METHODE.md`)
-- [x] Web app + calendrier (`app.py`, `firecal.py`)
-- [x] Site web public (`docs/index.html`) — à publier avec GitHub Pages
-- [ ] Pitch et soumission
+**Clé FIRMS.** L'étape 2 demande une MAP_KEY gratuite, à créer sur la page « Web Services » de FIRMS. Placez-la dans un fichier `.env` à la racine, sous la forme `FIRMS_MAP_KEY=votre_clé`. Ce fichier est ignoré par Git : ne publiez jamais la clé.
+
+## Structure du dépôt
+
+```
+├── app.py, firecal.py        Application Streamlit et calculs du calendrier
+├── download_*.py             Téléchargement des données FIRMS
+├── clean_data.py … validate.py   Pipeline d'harmonisation
+├── build_site_data.py        Export des données pour le site
+├── data_public/              Résultats prêts à l'emploi
+├── docs/                     Site public, méthode, format, texte de soumission
+└── sample/                   Échantillon factice pour les tests
+```
+
+## Contribuer
+
+Une branche par tâche, puis fusion dans `main` par pull request. Ne jamais faire `git push --force`.
+
+```bash
+git checkout main && git pull
+git checkout -b prenom/ma-tache
+# ... travailler, puis :
+git add fichier1 fichier2
+git commit -m "Message clair"
+git push -u origin prenom/ma-tache
+```
+
+Ouvrez ensuite une pull request sur GitHub.
 
 ## Équipe
 
-À compléter.
+- HODOME K. Achille
+- ZOLOME K. Silvère
 
-## Mentions
+## Licence et mentions
 
-Projet réalisé pour le NASA Space Apps Challenge 2026 avec les données NASA FIRMS. Les résultats sont ceux de l'équipe et n'engagent pas la NASA. Les licences des données externes (ex. limites administratives) seront indiquées ici.
+Le code est sous licence MIT (voir [`LICENSE`](LICENSE)). Les données restent soumises aux conditions de leurs sources.
+
+Ce projet a été réalisé pour le NASA Space Apps Challenge 2026. Les résultats sont ceux de l'équipe et n'engagent pas la NASA, qui ne cautionne pas ce projet.
+
+- **Données de feux** : NASA FIRMS (MODIS / VIIRS 375 m), données ouvertes.
+- **Frontières** : Natural Earth 1:50m (domaine public), via world-atlas.
+- **Fond de carte de l'application Streamlit** : © les contributeurs d'OpenStreetMap (licence ODbL).
+- **Bibliothèques** : Leaflet, Streamlit, folium, Plotly, pandas, NumPy, scikit-learn, Matplotlib.
+- **Polices du site** : Space Grotesk, Inter, IBM Plex Mono (Google Fonts, licence OFL).
+- **Intelligence artificielle** : Claude (Anthropic) a aidé à écrire et relire le code et les textes. L'équipe a exécuté le pipeline sur les données réelles, vérifié les résultats et en est responsable.

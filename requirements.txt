@@ -1,4 +1,5 @@
 # Pipeline de données
+requests
 pandas
 numpy
 scikit-learn
