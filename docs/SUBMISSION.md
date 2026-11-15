@@ -3,7 +3,7 @@
 Fields follow the official Project Submission Guide (13 November 2026). Everything on the project page must be in English.
 Deadline: **Sunday 15 November, 11:59 p.m. Lomé time**, button "Submit for Judging". Save often; you can resubmit until the deadline.
 
-Lines marked `[TEAM]` must be completed or checked by the team before pasting.
+Copy the text under each heading into the form field of the same name.
 
 ---
 
@@ -17,7 +17,7 @@ Satellites have recorded fires over Togo since 2000, but the record is split in 
 
 ## Link to Project Demo
 
-`[TEAM]` Public link to the 7-slide deck (English) or the video of 30 seconds or less. It must open without login. Test it in a private browser window.
+https://firepulse-team.github.io/firepulse/FIREPULSE_demo.pdf
 
 ## Link to Final Project
 
@@ -57,7 +57,7 @@ Monthly error on active months. With quantile mapping, out of sample over 2013�
 
 **What we found for Togo**
 
-- The fire season runs from November to March. December and January are the critical months, with about 72% of yearly activity.
+- The fire season runs from November to March. December and January are the critical months, with about 70% of yearly activity.
 - Harmonized activity fell from about 52,000 hotspots per year (2001–2011) to about 37,900 (2013–2025): −2.6% per year (Mann–Kendall p < 0.001).
 - The decline appears in MODIS alone and in VIIRS alone, so it is not produced by the correction.
 - From 1 to 14 November 2026: 285 hotspots, 49% of the median for the same days, 24th percentile.
@@ -83,15 +83,13 @@ Python (pandas, NumPy, scikit-learn, Matplotlib) for the pipeline; JavaScript, H
 
 ## Use of Super Intelligence (SI)
 
-`[TEAM]` Answer truthfully and complete what applies to the parts written by the team. Draft for the parts made with Claude:
-
 Yes. We used Claude (Anthropic), a large language model, as a coding and writing assistant:
 
-- Code: the website (`docs/`), the Streamlit app (`app.py`, `firecal.py`) and the site data script (`build_site_data.py`) were written with Claude and reviewed and tested by the team. `[TEAM: state whether and how AI was used for the pipeline scripts — download, cleaning, gridding, calibration, validation.]`
+- Code: the website (`docs/`), the Streamlit app (`app.py`, `firecal.py`) and the site data script (`build_site_data.py`) were written with Claude and reviewed and tested by the team. The pipeline scripts (download, cleaning, gridding, calibration, validation) were also written with Claude's help; the team ran them on real FIRMS data and checked the outputs.
 - Images: the FIREPULSE logo was generated with Claude as vector code. All charts and maps are drawn by our code from NASA FIRMS data; none is an AI-generated image.
-- Text: Claude helped draft and translate the texts of the site and of this page. The team checked every figure against the pipeline outputs.
+- Text: Claude helped draft and translate the texts of the site and of this page. The team checked every figure against the pipeline outputs. The English version of the demo slides was translated with Claude.
 
-AI-assisted files carry an acknowledgement in their header, and the site footer and the repository README state it. No AI-generated content uses NASA logos or branding. `[TEAM: confirm that the idea and the choice of method are the team's own, as the rules require.]`
+AI-assisted files carry an acknowledgement in their header, and the site footer and the repository README state it. No AI-generated content uses NASA logos or branding. The project idea and the choice of method are the team's own.
 
 ## NASA Data
 
@@ -115,8 +113,8 @@ Software
 - AI assistant: Claude (Anthropic).
 
 Scientific references
-- Giglio, L., Schroeder, W., Justice, C. O. (2016). The collection 6 MODIS active fire detection algorithm and fire products. *Remote Sensing of Environment*, 178, 31–41.
-- Schroeder, W., Oliva, P., Giglio, L., Csiszar, I. (2014). The New VIIRS 375 m active fire detection data product. *Remote Sensing of Environment*, 143, 85–96.
+- Giglio, L., Schroeder, W., Justice, C. O. (2016). The collection 6 MODIS active fire detection algorithm and fire products. *Remote Sensing of Environment*, 178, 31–41. https://doi.org/10.1016/j.rse.2016.02.054
+- Schroeder, W., Oliva, P., Giglio, L., Csiszar, I. A. (2014). The New VIIRS 375 m active fire detection data product: Algorithm description and initial assessment. *Remote Sensing of Environment*, 143, 85–96. https://doi.org/10.1016/j.rse.2013.12.008
 
 ---
 
