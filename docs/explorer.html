@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="site/style.css?v=3">
+<title>FIREPULSE — Explorer</title>
+<meta name="description" content="FIREPULSE raccorde 26 ans de points chauds MODIS et VIIRS (NASA FIRMS) en une seule série pour le Togo. NASA Space Apps Challenge 2026.">
+</head>
+<body data-page="explorer">
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="12" stroke="#12261F" stroke-width="1.5"/><path d="M1 13h24M13 1c4 4 4 20 0 24M13 1c-4 4-4 20 0 24" stroke="#12261F" stroke-width="1"/><circle cx="16.5" cy="9.5" r="3.2" fill="#C2410C"/></svg><span>FIRE<b>PULSE</b></span></a>
+  <nav class="main" data-i18n-aria="navAria"><a href="index.html" data-nav="home" data-i18n="navHome"></a><a href="explorer.html" data-nav="explorer" data-i18n="navExplorer"></a><a href="methode.html" data-nav="method" data-i18n="navMethod"></a></nav>
+  <div class="tools"><div class="seg" role="group" aria-label="Langue / Language"><button id="lgfr">FR</button><button id="lgen">EN</button></div><a class="btn" href="https://github.com/firepulse-team/firepulse">GitHub</a></div>
+</div></header>
+
+<div class="explorer">
+<aside>
+  <section class="card panel"><h2 data-i18n="p1"></h2>
+    <div class="seg" role="group" id="zoneSeg"><button data-zone="all" data-i18n="zAll"></button><button data-zone="region" data-i18n="zRegion"></button><button data-zone="rect" data-i18n="zRect"></button></div>
+    <label class="field" id="regionField" hidden><span data-i18n="regionLbl"></span><select id="regionSel"></select><span class="note" data-i18n="regionNote"></span></label>
+    <div class="fields"><label class="field"><span data-i18n="north"></span><input id="bN" inputmode="decimal"></label><label class="field"><span data-i18n="south"></span><input id="bS" inputmode="decimal"></label><label class="field"><span data-i18n="west"></span><input id="bW" inputmode="decimal"></label><label class="field"><span data-i18n="east"></span><input id="bE" inputmode="decimal"></label></div>
+    <div class="note" id="zoneMsg" role="status"></div>
+  </section>
+  <section class="card panel"><h2 data-i18n="p2"></h2>
+    <div class="seg" role="group" id="modeSeg"><button data-mode="act" data-i18n="mAct"></button><button data-mode="ano" data-i18n="mAno"></button></div>
+    <label class="field"><span data-i18n="monthLbl"></span><select id="monthSel" style="font-family:var(--body)"></select></label>
+  </section>
+  <section class="sit" id="sit"><h2 id="sitCap">…</h2><div class="pill"><i id="sitDot"></i><span id="sitPill">…</span></div>
+    <div class="big"><b id="sitN">…</b><span data-i18n="sitUnit"></span></div>
+    <div><div class="gauge"><i id="sitBar" style="width:0"></i><u></u></div><div class="gscale" style="margin-top:6px"><span>0</span><span data-i18n="median"></span><span data-i18n="twice"></span></div></div>
+    <div class="two"><div><b id="sitR">…</b><span data-i18n="ofMedian"></span></div><div><b id="sitP">…</b><span data-i18n="percentile"></span></div></div>
+  </section>
+  <section class="card panel" style="gap:10px"><h2 data-i18n="p4"></h2>
+    <button class="export" id="dlMonth" data-i18n="dlMonth"></button>
+    <div class="note"><span data-i18n="dlNote"></span> <a href="#" id="dlWeek" data-i18n="dlWeek"></a> · <a href="https://github.com/firepulse-team/firepulse/tree/main/data_public" data-i18n="dlHot"></a></div>
+  </section>
+</aside>
+<div class="main">
+  <section class="map" id="mapBox" data-i18n-aria="mapAria"><div id="map"></div>
+    <div class="ctl"><button class="draw" id="drawBtn"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/></svg><span id="drawTxt"></span></button>
+      <div class="zoom"><button id="zIn" data-i18n-aria="zoomIn">+</button><button id="zOut" data-i18n-aria="zoomOut">−</button></div></div>
+    <div class="box legendbox" style="right:16px;top:16px"><b id="mapLegTitle"></b><div class="ramp"><span data-i18n="few"></span><span class="sw" id="mapRampSw"><i style="background:var(--h1)"></i><i style="background:var(--h2)"></i><i style="background:var(--h3)"></i><i style="background:var(--h4)"></i><i style="background:var(--h5)"></i><i style="background:var(--h6)"></i></span><span data-i18n="many"></span></div></div>
+    <div class="box coords" id="coords">—</div>
+  </section>
+  <section class="card calpanel">
+    <div class="top"><h2 id="calTitle"></h2><span class="ramp" id="calRamp"></span></div>
+    <div class="scroll"><div class="cal"><div class="months" id="calMonths"></div><div class="body"><div class="grid" id="calGrid"></div><div class="years" id="calYears"></div></div></div></div>
+    <div class="note" data-i18n="calHelp"></div>
+  </section>
+</div>
+</div>
+<footer class="site"><div class="wrap"><span data-i18n="foot1"></span><span data-i18n="foot2"></span></div></footer>
+<div id="tip" role="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="site/borders.js"></script>
+<script src="site/core.js?v=3"></script>
+<script src="site/site.js?v=3"></script>
+</body>
+</html>

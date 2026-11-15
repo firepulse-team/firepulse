@@ -69,7 +69,7 @@
     const rows = [];
     for (let mi = D.firstMi; mi <= D.lastMi; mi++) {
       const m = mi % 12, v = agg.mH[mi], a = hist[m]; let lt = 0, eq = 0; for (const x of a) { if (x < v) lt++; else if (x === v) eq++; }
-      rows.push({ mi, year: Y0 + Math.floor(mi / 12), m, n: v, raw: agg.mR[mi], median: med[m], ratio: med[m] > 0 ? v / med[m] : NaN, pct: 100 * (lt + 0.5 * eq) / a.length, partial: (mi === D.lastMi && D.partial) || mi === D.firstMi, src: FP.srcOf(D, FP.dayOf(Y0 + Math.floor(mi / 12), m + 1, 1)) });
+      rows.push({ mi, year: Y0 + Math.floor(mi / 12), m, n: v, raw: agg.mR[mi], median: med[m], ratio: med[m] > 0 ? v / med[m] : NaN, pct: 100 * (lt + 0.5 * eq) / a.length, partial: (mi === D.lastMi && D.partial) || (mi === D.firstMi && FP.dateOf(D.first).getUTCDate() !== 1), src: FP.srcOf(D, FP.dayOf(Y0 + Math.floor(mi / 12), m + 1, 1)) });
     }
     return { rows, clim };
   };
@@ -167,6 +167,18 @@
     const out = new Map(), d0 = FP.dayOf(BASE[0], 1, 1), d1 = FP.dayOf(BASE[1] + 1, 1, 1), ny = BASE[1] - BASE[0] + 1;
     for (const i of agg.idx) { const d = D.day[i]; if (d < d0 || d >= d1 || (month && dMi[d] % 12 !== month - 1)) continue; const id = FP.cellId(D.iy[i], D.ix[i]); out.set(id, (out.get(id) || 0) + D.harm[i] / ny); }
     return out;
+  };
+
+  // Carte d'un mois précis (mi = (année - 2000) * 12 + mois) : hotspots harmonisés par case
+  FP.cellMapMonth = function (D, agg, mi) {
+    const out = new Map();
+    for (const i of agg.idx) { if (dMi[D.day[i]] !== mi) continue; const id = FP.cellId(D.iy[i], D.ix[i]); out.set(id, (out.get(id) || 0) + D.harm[i]); }
+    return out;
+  };
+  // Catégorie d'anomalie d'un mois (-3..3) à partir du percentile de anomalies.py
+  FP.monthCat = function (r, floor) {
+    if (r.partial || (r.n < floor && r.median < floor)) return 0; const k = r.pct;
+    return k >= 98 ? 3 : k >= 90 ? 2 : k >= 75 ? 1 : k <= 2 ? -3 : k <= 10 ? -2 : k <= 25 ? -1 : 0;
   };
 
   const r2 = x => isNaN(x) ? '' : Math.round(x * 100) / 100;

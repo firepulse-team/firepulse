@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="site/style.css?v=3">
+<title>FIREPULSE — Méthode et données</title>
+<meta name="description" content="FIREPULSE raccorde 26 ans de points chauds MODIS et VIIRS (NASA FIRMS) en une seule série pour le Togo. NASA Space Apps Challenge 2026.">
+</head>
+<body data-page="method">
+<header class="site"><div class="wrap">
+  <a class="logo" href="index.html"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="13" cy="13" r="12" stroke="#12261F" stroke-width="1.5"/><path d="M1 13h24M13 1c4 4 4 20 0 24M13 1c-4 4-4 20 0 24" stroke="#12261F" stroke-width="1"/><circle cx="16.5" cy="9.5" r="3.2" fill="#C2410C"/></svg><span>FIRE<b>PULSE</b></span></a>
+  <nav class="main" data-i18n-aria="navAria"><a href="index.html" data-nav="home" data-i18n="navHome"></a><a href="explorer.html" data-nav="explorer" data-i18n="navExplorer"></a><a href="methode.html" data-nav="method" data-i18n="navMethod"></a></nav>
+  <div class="tools"><div class="seg" role="group" aria-label="Langue / Language"><button id="lgfr">FR</button><button id="lgen">EN</button></div><a class="btn" href="https://github.com/firepulse-team/firepulse">GitHub</a></div>
+</div></header>
+
+<section class="wrap intro"><div class="eyebrow" data-i18n="mEyebrow"></div><h1 data-i18n="mTitle"></h1><p data-i18n="mLead"></p></section>
+<section class="wrap"><div class="steps">
+  <div class="card"><div class="n" data-i18n="st1n"></div><h2 data-i18n="st1h"></h2><p data-i18n="st1t"></p></div>
+  <div class="card"><div class="n" data-i18n="st2n"></div><h2 data-i18n="st2h"></h2><p data-i18n="st2t"></p></div>
+  <div class="card"><div class="n" data-i18n="st3n"></div><h2 data-i18n="st3h"></h2><p data-i18n="st3t"></p></div>
+  <div class="card"><div class="n" data-i18n="st4n"></div><h2 data-i18n="st4h"></h2><p data-i18n="st4t"></p></div>
+</div></section>
+<section class="wrap proof">
+  <div class="card" style="flex:1 1 520px"><h2 data-i18n="prTitle"></h2><p data-i18n="prLead"></p>
+    <div class="stats"><div><b data-i18n="pr1v"></b><span data-i18n="pr1t"></span></div><div><b data-i18n="pr2v"></b><span data-i18n="pr2t"></span></div><div><b data-i18n="pr3v"></b><span data-i18n="pr3t"></span></div></div>
+    <div id="valChart"></div><div class="lg" id="valLegend"></div>
+  </div>
+  <div class="card" style="flex:1 1 420px"><h2 data-i18n="cmpTitle"></h2><p data-i18n="cmpLead"></p><div class="scroll"><table class="cmp" id="cmpTable"></table></div></div>
+</section>
+<section class="wrap"><div class="limits"><h2 data-i18n="limTitle"></h2><div class="g" id="limGrid"></div></div></section>
+<section class="wrap"><div class="card dl"><div><h2 data-i18n="dlTitle"></h2><p data-i18n="dlLead"></p></div><div class="g" id="dlGrid"></div></div></section>
+<footer class="site"><div class="wrap"><span data-i18n="foot1"></span><span data-i18n="foot2"></span></div></footer>
+<div id="tip" role="tooltip"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="site/borders.js"></script>
+<script src="site/core.js?v=3"></script>
+<script src="site/site.js?v=3"></script>
+</body>
+</html>

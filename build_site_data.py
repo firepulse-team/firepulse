@@ -3,7 +3,7 @@
 Entrées (data/processed/ si le pipeline a tourné, sinon data_public/) :
   harmonized_monthly.csv   série harmonisée par case et par mois (docs/FORMAT.md)
   hotspots_clean.csv(.gz)  hotspots individuels nettoyés
-Sortie : docs/site/firepulse.json
+Sorties : docs/site/firepulse.json, et docs/site/validation.json si data/processed/monthly_grid.csv existe
 
 Le site a besoin du détail par JOUR pour le calendrier hebdomadaire. On répartit donc chaque valeur
 mensuelle harmonisée d'une case sur ses jours, au prorata des hotspots du capteur source ce jour-là :
@@ -70,8 +70,28 @@ def build() -> dict:
     }
 
 
+def build_validation() -> dict | None:
+    """Série nationale de la validation hors échantillon (validate.py), pour le graphique de la page Méthode.
+
+    Demande data/processed/monthly_grid.csv (aggregate_grid.py). Renvoie None si le fichier manque.
+    """
+    if not (ROOT / "data/processed/monthly_grid.csv").exists():
+        return None
+    from validate import loyo_predictions
+    nat = loyo_predictions().groupby("month")[["modis", "viirs", "pred"]].sum().sort_index()
+    return {"format": "firepulse-validation-v1", "month": nat.index.tolist(), "viirs": nat["viirs"].round(0).astype(int).tolist(),
+            "pred": nat["pred"].round(1).tolist(), "modis": nat["modis"].round(0).astype(int).tolist(),
+            "r": round(float(nat["pred"].corr(nat["viirs"])), 3)}
+
+
 if __name__ == "__main__":
     out = build()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(out, separators=(",", ":")), encoding="utf-8")
     print(f"-> {OUT} ({OUT.stat().st_size / 1e6:.1f} Mo)")
+    val = build_validation()
+    if val is None:
+        print("monthly_grid.csv absent : docs/site/validation.json n'est pas régénéré (lancer aggregate_grid.py).")
+    else:
+        (OUT.parent / "validation.json").write_text(json.dumps(val, separators=(",", ":")), encoding="utf-8")
+        print(f"-> validation.json ({len(val['month'])} mois, r = {val['r']})")
