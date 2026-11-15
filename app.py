@@ -4,6 +4,8 @@ Lancer :  streamlit run app.py
 Lit la série harmonisée (format : docs/FORMAT.md) dans data/processed/ si le pipeline a tourné,
 sinon dans data_public/ (données prêtes à l'emploi du dépôt), sinon l'échantillon factice de sample/.
 Les anomalies sont calculées par anomalies.py, comme dans le pipeline.
+
+Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team.
 """
 import folium
 import numpy as np

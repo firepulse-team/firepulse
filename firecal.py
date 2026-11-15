@@ -3,6 +3,8 @@
 Les anomalies (médiane, ratio, percentile) viennent de anomalies.py, pour que l'app affiche
 exactement les mêmes chiffres que le pipeline. Ce module ajoute ce qui est propre au calendrier :
 année de feu, niveaux calme / actif / critique, totaux annuels, tendance.
+
+Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team.
 """
 from math import erf, sqrt
 from pathlib import Path

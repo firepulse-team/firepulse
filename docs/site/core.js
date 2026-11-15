@@ -1,3 +1,4 @@
+/* Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team. */
 /* FIREPULSE — calculs du site (sans DOM). Lit docs/site/firepulse.json, produit par build_site_data.py.
    Les valeurs harmonisées viennent du pipeline (quantile mapping) ; ici on ne fait que les agréger. */
 (function (root) {

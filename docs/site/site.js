@@ -1,3 +1,4 @@
+/* Written with AI assistance (Claude, Anthropic); reviewed and tested by the FIREPULSE team. */
 /* FIREPULSE — interface des trois pages (Accueil, Explorer, Méthode et données), d'après la maquette de l'équipe.
    Les calculs sont dans core.js ; les données viennent de site/firepulse.json et site/validation.json. */
 (function () {
@@ -6,7 +7,7 @@
   const I18N = {
     fr: {
       navAria: 'Menu principal', navHome: 'Accueil', navExplorer: 'Explorer', navMethod: 'Méthode et données',
-      foot1: 'Données : NASA FIRMS (MODIS / VIIRS 375 m). Projet d’équipe ; les résultats n’engagent pas la NASA.', foot2: 'Équipe FIREPULSE · NASA Space Apps Challenge 2026 · Lomé',
+      foot1: 'Données : NASA FIRMS (MODIS / VIIRS 375 m). Projet d’équipe ; les résultats n’engagent pas la NASA.', foot2: 'Équipe FIREPULSE · NASA Space Apps Challenge 2026 · Lomé · Site et logo réalisés avec l’aide d’une IA (Claude)',
       loadErr: 'Les données n’ont pas pu être chargées. En local, lancez <code>python -m http.server</code> dans le dossier <code>docs/</code>.',
       months: ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'],
       monthsLong: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'],
@@ -63,7 +64,7 @@
     },
     en: {
       navAria: 'Main menu', navHome: 'Home', navExplorer: 'Explore', navMethod: 'Method and data',
-      foot1: 'Data: NASA FIRMS (MODIS / VIIRS 375 m). Team project; results do not represent NASA.', foot2: 'FIREPULSE team · NASA Space Apps Challenge 2026 · Lomé',
+      foot1: 'Data: NASA FIRMS (MODIS / VIIRS 375 m). Team project; results do not represent NASA.', foot2: 'FIREPULSE team · NASA Space Apps Challenge 2026 · Lomé · Site and logo made with AI assistance (Claude)',
       loadErr: 'The data could not be loaded. Locally, run <code>python -m http.server</code> in the <code>docs/</code> folder.',
       months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       monthsLong: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
