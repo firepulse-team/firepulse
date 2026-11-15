@@ -89,7 +89,7 @@ Yes. We used Claude (Anthropic), a large language model, as a coding and writing
 - Images: the FIREPULSE logo was generated with Claude as vector code. All charts and maps are drawn by our code from NASA FIRMS data; none is an AI-generated image.
 - Text: Claude helped draft and translate the texts of the site and of this page. The team checked every figure against the pipeline outputs. The English version of the demo slides was translated with Claude.
 
-AI-assisted files carry an acknowledgement in their header, and the site footer and the repository README state it. No AI-generated content uses NASA logos or branding. The project idea and the choice of method are the team's own.
+AI-assisted files carry an acknowledgement in their header, and the site footer and the repository README state it. No AI-generated content uses NASA logos or branding. The team chose the challenge and the use case. Claude suggested technical options; the team compared them on real data and decided on the method.
 
 ## NASA Data
 

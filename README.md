@@ -136,7 +136,7 @@ Then open a pull request on GitHub.
 
 ## Use of AI
 
-The Space Apps rules ask teams to state where AI was used. Claude (Anthropic) helped write and review the code (pipeline scripts, website in `docs/`, Streamlit application, `build_site_data.py`), the logo (generated as vector code) and the texts, including the English translation of the demo slides. The files concerned carry the mention in their header, and the site footer states it. The team ran the pipeline on real FIRMS data, checked the results and is responsible for them. The project idea and the choice of method are the team's own.
+The Space Apps rules ask teams to state where AI was used. Claude (Anthropic) helped write and review the code (pipeline scripts, website in `docs/`, Streamlit application, `build_site_data.py`), the logo (generated as vector code) and the texts, including the English translation of the demo slides. The files concerned carry the mention in their header, and the site footer states it. The team ran the pipeline on real FIRMS data, checked the results and is responsible for them. The team chose the challenge and the use case. Claude suggested technical options; the team compared them on real data and decided on the method.
 
 All charts and maps are drawn by our code from NASA FIRMS data: none is an AI-generated image. The submission text is in [`docs/SUBMISSION.md`](docs/SUBMISSION.md).
 
